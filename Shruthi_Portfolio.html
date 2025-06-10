@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jayashruthi Rangarajan | Interactive Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!--
+    Theme: Material Properties Databank
+    Concept: This interactive resume is styled as a technical data sheet for a high-performance material, named "Jayashruthi Rangarajan". The user navigates through different data categories (General, Mechanical, Processing, Microstructure) to explore the 'material's' properties and history.
+    Visuals: The design uses a clean, technical aesthetic with a color palette of whites, grays, and a sharp blue accent, reminiscent of scientific software or a technical database. Typography prioritizes clarity with Roboto for prose and Roboto Mono for data points.
+    Interactivity:
+    - Tabbed Navigation: Allows users to explore different facets of the profile in an organized manner.
+    - "Grade" Toggle (Industry/Academia): Rebrands the core concept, allowing recruiters to view data optimized for either a 'Commercial Grade' or a 'Research Grade' profile.
+    - Interactive Career Chart: The timeline is a "Process History" scatter plot, mapping career milestones against a competence index over time. Tooltips are "sticky" on click for easier reading.
+    - Filterable Project Database: The "Microstructure Analysis" section presents projects in a searchable table, enabling users to quickly find relevant case studies.
+    - Radar Chart: The skills radar chart is retained under "Mechanical Properties" to provide a quick visual summary of capabilities.
+    -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+        }
+        .font-mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+        .databank-container {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .tab-button {
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            color: #495057;
+        }
+        .tab-button.active {
+            border-bottom-color: #0d6efd;
+            color: #0d6efd;
+            font-weight: 500;
+        }
+        .tab-button:hover {
+            background-color: #f8f9fa;
+            border-bottom-color: #adb5bd;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .toggle-container {
+            display: flex;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            padding: 3px;
+            border: 1px solid #ced4da;
+        }
+        .toggle-button {
+            flex: 1;
+            padding: 6px 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .toggle-button.active {
+            background-color: #0d6efd;
+            color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #dee2e6;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+        .data-table thead {
+            background-color: #f8f9fa;
+        }
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa90;
+        }
+        .data-table tbody tr:hover {
+            background-color: #e9ecef;
+        }
+        .filter-input {
+            border: 1px solid #ced4da;
+            padding: 8px 12px;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 400px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .filter-input:focus {
+            outline: none;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+        }
+        /* Custom Tooltip Styling */
+        .tooltip-container {
+            position: fixed;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 1rem;
+            pointer-events: auto;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            min-width: 200px;
+            max-width: 90vw;
+            z-index: 100;
+            visibility: hidden;
+        }
+        .tooltip-container.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .collapsible-content.open {
+            max-height: 100px; /* Adjust as needed */
+        }
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="p-2 sm:p-4 md:p-6">
+
+    <div class="max-w-7xl mx-auto databank-container rounded-lg">
+        <!-- Header -->
+        <header class="p-4 sm:p-6 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800" data-i18n-key="main_title"></h1>
+                    <p class="text-md sm:text-lg text-gray-600" data-i18n-key="subtitle"></p>
+                </div>
+                <div class="flex flex-wrap justify-end items-center space-x-2 sm:space-x-4 mt-4 sm:mt-0">
+                    <div class="text-right">
+                        <label class="block text-sm font-medium text-gray-500" data-i18n-key="grade_label"></label>
+                        <div class="toggle-container mt-1">
+                            <div id="industry-btn" class="toggle-button" data-i18n-key="grade_commercial"></div>
+                            <div id="academia-btn" class="toggle-button" data-i18n-key="grade_research"></div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <label class="block text-sm font-medium text-gray-500" data-i18n-key="language_label"></label>
+                        <div class="toggle-container mt-1">
+                            <div id="de-btn" class="toggle-button">DE</div>
+                            <div id="en-btn" class="toggle-button">EN</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="flex flex-wrap border-b border-gray-200 bg-gray-50/50">
+            <button class="flex-auto tab-button active px-2 py-3 sm:px-4 text-sm sm:text-base" data-tab="general" data-i18n-key="tab_general"></button>
+            <button class="flex-auto tab-button px-2 py-3 sm:px-4 text-sm sm:text-base" data-tab="mechanical" data-i18n-key="tab_mechanical"></button>
+            <button class="flex-auto tab-button px-2 py-3 sm:px-4 text-sm sm:text-base" data-tab="processing" data-i18n-key="tab_processing"></button>
+            <button class="flex-auto tab-button px-2 py-3 sm:px-4 text-sm sm:text-base" data-tab="microstructure" data-i18n-key="tab_microstructure"></button>
+        </nav>
+
+        <!-- Tab Content -->
+        <main class="p-4 sm:p-6">
+            <!-- General Properties -->
+            <div id="tab-general" class="tab-content active">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-2">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4" data-i18n-key="summary_title"></h2>
+                        <div id="content-container" class="text-gray-700 text-lg space-y-4">
+                            <p class="view-content text-justify" data-view="industry" data-i18n-key="industry_intro"></p>
+                            <p class="view-content hidden text-justify" data-view="academia" data-i18n-key="academia_intro"></p>
+                        </div>
+                         <div class="mt-8 relative">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n-key="interests_title"></h3>
+                            <div id="interests-list" class="space-y-2">
+                                <!-- Interests will be injected by JS -->
+                            </div>
+                            <div id="interests-tooltip" class="tooltip-container"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n-key="contact_title"></h3>
+                        <div class="space-y-3 font-mono text-sm">
+                            <p><strong>Email:</strong> <a href="mailto:jayashruthirangarajan@outlook.com" class="text-blue-600 hover:underline">jayashruthirangarajan@outlook.com</a></p>
+                            <p><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/jayashruthirangarajan5" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">/in/jayashruthirangarajan5</a></p>
+                        </div>
+                         <h3 class="text-xl font-bold text-gray-800 mt-6 mb-4" data-i18n-key="certifications_title"></h3>
+                        <div id="certifications-container" class="space-y-2 text-sm">
+                            </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mechanical Properties (Skills) -->
+            <div id="tab-mechanical" class="tab-content">
+                 <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n-key="skills_title"></h2>
+                 <div>
+                    <button id="skills-info-toggle" class="flex items-center text-sm text-gray-500 mb-4 hover:text-blue-600">
+                        <span data-i18n-key="skills_subtitle_prompt"></span>
+                        <svg id="skills-info-icon" class="w-4 h-4 ml-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="skills-info-content" class="collapsible-content">
+                        <p class="text-sm p-4 bg-gray-50 rounded-md" data-i18n-key="skills_subtitle"></p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div class="relative h-80 lg:h-96"><canvas id="skillsChart"></canvas></div>
+                    <div id="skills-datasheet" class="space-y-4">
+                        </div>
+                </div>
+            </div>
+
+            <!-- Processing History (Timeline) -->
+            <div id="tab-processing" class="tab-content">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n-key="processing_title"></h2>
+                <p class="text-gray-500 mb-4" data-i18n-key="processing_subtitle"></p>
+                <div class="relative">
+                    <div class="h-96 w-full"><canvas id="careerChart"></canvas></div>
+                    <div id="career-chart-tooltip" class="tooltip-container"></div>
+                </div>
+            </div>
+
+            <!-- Microstructure Analysis (Projects) -->
+            <div id="tab-microstructure" class="tab-content">
+                 <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n-key="projects_title"></h2>
+                 <p class="text-sm text-gray-500 mb-4" data-i18n-key="projects_subtitle"></p>
+                 <input type="text" id="project-filter" class="filter-input mb-4" onkeyup="filterProjects()">
+                 <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead id="project-table-head"></thead>
+                        <tbody id="project-table-body"></tbody>
+                    </table>
+                 </div>
+            </div>
+        </main>
+    </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- DATA OBJECTS --- //
+    const i18nData = {
+        de: {
+            main_title: "Material-Datenblatt: Jayashruthi Rangarajan",
+            subtitle: "Werkstoffingenieurin",
+            grade_label: "Profil-Grad",
+            grade_commercial: "Industrie",
+            grade_research: "Akademia",
+            language_label: "Sprache",
+            tab_general: "Allgemeine Eigenschaften",
+            tab_mechanical: "Mechanische Eigenschaften",
+            tab_processing: "Verarbeitungshistorie",
+            tab_microstructure: "Mikrostrukturanalyse",
+            summary_title: "Zusammenfassung",
+            interests_title: "Interessengebiete",
+            interests: {
+                composites: "Keramische und polymere Verbundwerkstoffe",
+                composites_details: "Meine Erfahrung umfasst die praktische Herstellung von Keramikmatrix-Verbundwerkstoffen mittels Polymerinfiltration & Pyrolyse (PIP) und Vakuuminfusion. Mein Forschungs- und Traineeprogramm haben tiefe Einblicke in die Verarbeitung und Eigenschaften von sowohl keramischen als auch polymeren Matrix-Verbundwerkstoffen für anspruchsvolle Anwendungen geliefert.",
+                optimization: "Prozessoptimierung und Effizienz",
+                optimization_details: "Ich habe statistische Methoden wie die Versuchsplanung (DoE) angewendet, um Herstellungsprozesse auf Effizienz zu optimieren. Meine Industrieerfahrung umfasst die Verbesserung der Arbeitsplatzeffizienz durch Zeit-Bewegungs-Studien und Datenanalyse zur Verbesserung von Produktionsabläufen.",
+                characterization: "Materialcharakterisierung & Schadensanalyse",
+                characterization_details: "Ich bin versiert in einer Vielzahl von Materialcharakterisierungstechniken, einschließlich REM, EDS und XRD für die Mikrostruktur- und Phasenanalyse. Meine Erfahrung erstreckt sich auf die umfassende Schadensanalyse, die Identifizierung von Mechanismen wie Ermüdungsrisswachstum und Korrosion durch mechanische und Oberflächenprüfungen.",
+                sustainability: "Nachhaltigkeit in der Werkstofftechnik",
+                sustainability_details: "Angetrieben von einer Leidenschaft für Nachhaltigkeit konzentriere ich mich auf die Entwicklung und Optimierung von Materialien, die die Ressourcen- und Energieeffizienz verbessern. Ich bin bestrebt, den gesamten Materiallebenszyklus zu erforschen, von der nachhaltigen Beschaffung und Verarbeitung bis hin zu Recycling und Kreislaufwirtschaftsprinzipien."
+            },
+            contact_title: "Daten-Link",
+            industry_intro: "Eine ergebnisorientierte Werkstoffingenieurin mit praktischer Erfahrung in der Materialverarbeitung und -charakterisierung. Meine Expertise umfasst die Optimierung von Fertigungsprozessen wie der Polymerinfiltration & Pyrolyse (PIP) sowie die Durchführung detaillierter Schadensanalysen, mechanischer Prüfungen (Zug, Verschleiß) und mikrostruktureller Charakterisierungen zur Gewährleistung der Bauteilzuverlässigkeit und -leistung.",
+            academia_intro: "Meine Forschungsinteressen konzentrieren sich auf die Optimierung von Materialeigenschaften über ein breites Spektrum von Werkstoffklassen, einschließlich Verbundwerkstoffen, Metallen und Polymeren. Besonders motiviert mich die Steigerung der Materialleistung zur Verbesserung der Ressourcen- und Energieeffizienz, was meiner Leidenschaft für Nachhaltigkeit entspricht. Aufbauend auf meinen grundlegenden Kenntnissen und praktischen Erfahrungen strebe ich eine Promotion an, die sich auf die Entwicklung neuartiger und nachhaltiger Materiallösungen für anspruchsvolle Anwendungen konzentriert.",
+            certifications_title: "Zertifizierungen",
+            skills_title: "Kennwerte",
+            skills_subtitle_prompt: "Klicken für Details zur Skala",
+            skills_subtitle: "Eine Selbsteinschätzung der Kernkompetenzen auf einer Skala von 1-10, wobei 10 die höchste Kompetenz darstellt.",
+            skill_lab_title: "Labor & Charakterisierung",
+            skill_lab_list: ["Probenvorbereitung: Nassschneiden, Wasserstrahlschneiden, automatisches und manuelles Schleifen/Polieren, klassische und moderne Ätzverfahren", "Materialographie: Licht- und Rasterelektronenmikroskopie (REM-EDS), Oberflächenbewertung, Korngrößenbestimmung, Reinheitsbestimmung, Rauheits- und Profilmessungen", "Spektroskopie: FT-IR", "Phasenanalyse: XRD", "Korrosionsprüfung: Salzsprühtest", "Mechanische Prüfung: Zug-, Druck-, Härte- und Verschleißprüfung"],
+            skill_cad_title: "CAD/CAE Design & Simulation",
+            skill_cad_list: ["CAD: AutoCAD, Creo Parametric, SolidWorks, Siemens NX, CATIA V5", "FEM: COMSOL Multiphysics, Nastran, Patran"],
+            skill_data_title: "Datenanalyse & Programmierung",
+            skill_data_list: ["Datenanalyse: Origin, MATLAB", "Programmierung: Python, Java"],
+            skill_mfg_title: "Materialverarbeitung",
+            skill_mfg_list: ["Aluminium-Wärmebehandlung", "Additive Fertigung (FDM) von thermoplastischen Polymeren", "Vakuuminfusion, RTM & PIP für Verbundwerkstoffe"],
+            chart_label: "Kompetenzniveau",
+            chart_topics: ["Labor & Charakterisierung", "FEM Simulation", "CAD Design", "Datenanalyse", "Werkstoffverarbeitung"],
+            processing_title: "Verarbeitungshistorie (Karriere)",
+            processing_subtitle: "Dieses Diagramm visualisiert meine Karriere als Verarbeitungshistorie und bildet die Erfahrung im Zeitverlauf gegen einen steigenden Kompetenz- und Verantwortungsindex ab. Klicken Sie auf einen Datenpunkt für eine detaillierte Analyse.",
+            projects_title: "Projektdatenbank",
+            projects_subtitle: "Dieser Abschnitt liefert konkrete Beweise für meine Problemlösungsfähigkeiten. Jedes Projekt wird als Fallstudie präsentiert, die sowohl für die kommerzielle als auch für die akademische Begutachtung anpassbar ist.",
+            filter_placeholder: "Projekte filtern nach Titel, Rolle...",
+            project_table_header: ["Titel", "Rolle", "Problem", "Aktion", "Ergebnis"],
+            project_table_header_academia: ["Titel", "Rolle", "Zusammenfassung"],
+            project_problem: "Problem",
+            project_action: "Aktion",
+            project_result: "Ergebnis"
+        },
+        en: {
+            main_title: "Material Datasheet: Jayashruthi Rangarajan",
+            subtitle: "Materials Engineer",
+            grade_label: "Profile Grade",
+            grade_commercial: "Commercial",
+            grade_research: "Academia",
+            language_label: "Language",
+            tab_general: "General Properties",
+            tab_mechanical: "Mechanical Properties",
+            tab_processing: "Processing History",
+            tab_microstructure: "Microstructure Analysis",
+            summary_title: "Executive Summary",
+            interests_title: "Fields of Interest",
+            interests: {
+                composites: "Ceramic & Polymer Matrix Composites",
+                composites_details: "My experience includes hands-on fabrication of Ceramic Matrix Composites using Polymer Infiltration & Pyrolysis (PIP) and vacuum Infusion. My research and trainee program have provided deep insights into the processing and properties of both ceramic and polymer matrix composites for demanding applications.",
+                optimization: "Process Optimization & Efficiency",
+                optimization_details: "I have applied statistical methods like Design of Experiments (DoE) to optimize manufacturing processes for efficiency. My industrial experience includes improving workplace efficiency through time-motion studies and data analysis to enhance production workflows.",
+                characterization: "Material Characterization & Failure Analysis",
+                characterization_details: "I am proficient in a wide range of material characterization techniques, including SEM, EDS, and XRD for microstructural and phase analysis. My experience extends to comprehensive failure analysis, identifying mechanisms like fatigue crack growth and corrosion through mechanical and surface testing.",
+                sustainability: "Sustainability in Materials Engineering",
+                sustainability_details: "Driven by a passion for sustainability, my focus is on developing and optimizing materials that improve resource and energy efficiency. I am keen on exploring the entire material lifecycle, from sustainable sourcing and processing to recycling and circular economy principles."
+            },
+            contact_title: "Data Link",
+            industry_intro: "A results-oriented Materials Engineer with hands-on experience in material processing and characterization. My expertise includes optimizing manufacturing processes like Polymer Infiltration & Pyrolysis (PIP) and conducting detailed failure analysis, mechanical testing (tensile, wear), and microstructural characterization to ensure component reliability and performance.",
+            academia_intro: "My research interests are centered on the optimization of material properties across a broad range of classes, including composites, metals, and polymers. I am particularly motivated by enhancing material performance to improve both resource and energy efficiency, which aligns with my passion for sustainability as a whole. Drawing on my foundational knowledge and practical experience, I am eager to pursue doctoral research focused on developing novel and sustainable material solutions for demanding applications.",
+            certifications_title: "Certifications",
+            skills_title: "Key Performance Indicators",
+            skills_subtitle_prompt: "Click for details on the scale",
+            skills_subtitle: "A self-assessment of core competencies on a scale of 1-10, where 10 represents the highest proficiency.",
+            skill_lab_title: "Lab & Characterization",
+            skill_lab_list: ["Sample Preparation: Wet and waterjet cutting, automated/manual grinding & polishing, classical/modern etching.", "Materialography: Light & Scanning Electron Microscopy (SEM-EDS), surface assessment, grain size/purity determination, roughness & profile measurements.", "Spectroscopy: FT-IR", "Phase Analysis: XRD", "Corrosion testing: Salt-spray", "Mechanical Testing: Tensile, Compression, Hardness and Wear testing", "Adherence to lab safety protocols"],
+            skill_cad_title: "CAD/CAE Design & Simulation",
+            skill_cad_list: ["CAD: AutoCAD, Creo Parametric, SolidWorks, Siemens NX, CATIA V5", "FEM: COMSOL Multiphysics, Nastran, Patran"],
+            skill_data_title: "Data Analysis & Programming",
+            skill_data_list: ["Data Analysis: Origin, MATLAB", "Programming: Python, Java"],
+            skill_mfg_title: "Material Processing",
+            skill_mfg_list: ["Aluminum Heat Treatment", "Additive Manufacturing (FDM) of Thermoplastic Polymers", "Composite Processing (Vacuum Infusion, RTM, PIP)"],
+            chart_label: "Proficiency Level",
+            chart_topics: ["Lab & Characterization", "FEM Simulation", "CAD Design", "Data Analysis", "Material Processing"],
+            processing_title: "Processing History (Career)",
+            processing_subtitle: "This chart visualizes my career as a processing history, mapping experience over time against a rising index of competence and responsibility. Click on any data point for a detailed analysis.",
+            projects_title: "Project Database",
+            projects_subtitle: "This section provides concrete evidence of my problem-solving capabilities. Each project is presented as a case study, adaptable for both commercial and academic review.",
+            filter_placeholder: "Filter projects by title, role...",
+            project_table_header: ["Titel", "Rolle", "Problem", "Aktion", "Ergebnis"],
+            project_table_header_academia: ["Titel", "Rolle", "Abstract"],
+            project_problem: "Problem",
+            project_action: "Action",
+            project_result: "Result"
+        }
+    };
+    const projectsData = { 
+        de: [ 
+            { title: "Pareto-effiziente Herstellung von C/SiC-Verbundwerkstoffen mittels Polymerinfiltration und Pyrolyse", role: "Masterarbeit", industry: { problem: "Entwicklung eines effizienten Herstellungsprozesses. Das Ziel der Arbeit ist es, mögliche Korrelationen zwischen den Prozessparametern und den resultierenden Eigenschaften zu finden.", action: "Anwendung statistischer Versuchsplanung (DoE) zur Optimierung des PIP-Verfahrens.", result: "Identifizierung entscheidender Prozessfaktoren für verbesserten Durchsatz." }, academia: { abstract: "Diese Arbeit untersucht die Pareto-effiziente Herstellung von C/SiC-Verbundwerkstoffen mittels PIP-Verfahren und DoE zur Identifizierung kritischer Prozessparameter." } }, 
+            { title: "Herstellung und Charakterisierung von C/SiC-Keramikverbundwerkstoffen", role: "Labor-Projekt", industry: { problem: "Entwicklung von Fertigungskompetenzen für Keramikverbundwerkstoffe.", action: "Herstellung von 15 Prototypen mittels Vakuuminfusion und RTM.", result: "Etablierung eines robusten Herstellungsprozesses für qualitativ hochwertige Prototypen." }, academia: { abstract: "Dieses Projekt konzentrierte sich auf die praktische Herstellung von C/SiC-Verbundwerkstoffen mittels PIP, um ein tiefes praktisches Verständnis der Verbundwerkstoffherstellung zu gewinnen." } }, 
+            { title: "Konstruktion und Herstellung einer hydraulisch angetriebenen Formmaschine", role: "Miniprojekt", industry: { problem: "Entwicklung einer Maschine zur Einbettung metallischer Proben für die metallographische Analyse.", action: "Konstruktion und Fertigung einer hydraulisch betriebenen Formpresse. Entwurf eines integrierten Heizsystems zur Aushärtung.", result: "Erfolgreiche Herstellung einer funktionsfähigen Formmaschine, die eine effiziente Probeneinbettung ermöglicht." }, academia: { abstract: "Dieses Projekt umfasste die Konstruktion und den Bau einer hydraulisch angetriebenen Formmaschine zum Einbetten von metallurgischen Proben in wärmehärtendes Phenolformaldehydharz." } }, 
+            { title: "Schallabsorption von akustischen Metamaterialien", role: "Bachelorarbeit", industry: { problem: "Entwicklung eines leichten, kompakten schallabsorbierenden Materials.", action: "Konstruktion und Herstellung eines Metamaterial-Prototyps mittels FDM.", result: "Herstellung eines Prototyps mit gezielten Schallabsorptionseigenschaften." }, academia: { abstract: "Experimentelle Untersuchung der Schallabsorptionseigenschaften von akustischen Metamaterialien durch Charakterisierung eines FDM-gefertigten Prototyps." } } 
+        ], 
+        en: [ 
+            { title: "Pareto efficent production of C/SiC composite via Polymer Infiltration and Pyrolysis", role: "Master Thesis", industry: { problem: "Develop an efficient manufacturing process. The goal of the thesis is to find possible correlations between process parameters and the resulting properties.", action: "Applied Design of Experiments (DoE) to optimize the PIP process.", result: "Identified key process factors for improved throughput." }, academia: { abstract: "This thesis investigates the Pareto-efficient production of C/SiC composites via the PIP process, using DoE to identify critical process parameters." } }, 
+            { title: "Fabrication and Characterization of C/SiC Ceramic Composites", role: "Lab Project", industry: { problem: "Develop manufacturing expertise for ceramic matrix composites.", action: "Fabricated 15 prototypes using vacuum infusion and RTM.", result: "Established a robust manufacturing process for high-quality prototypes." }, academia: { abstract: "This project focused on the practical fabrication of C/SiC composites via PIP, gaining a deep practical understanding of composite manufacturing." } }, 
+            { title: "Design and Fabrication of a Hydraulic Powered Molding Machine", role: "Mini Project", industry: { problem: "Develop a machine for embedding metallic specimens for metallographic analysis.", action: "Designed and fabricated a hydraulic molding press. Engineered an integrated heating system for curing.", result: "Successfully produced a functional molding machine enabling efficient specimen embedding." }, academia: { abstract: "This project involved the design and construction of a hydraulic-powered molding machine for embedding metallurgical specimens in thermosetting phenol formaldehyde resin." } }, 
+            { title: "Sound Absorption of Acoustic Metamaterials", role: "Bachelor Thesis", industry: { problem: "Develop a lightweight, compact sound-absorbing material.", action: "Designed and fabricated a metamaterial prototype using FDM.", result: "Created a prototype with targeted sound absorption properties." }, academia: { abstract: "Experimental study of sound absorption in acoustic metamaterials by characterizing an FDM-fabricated prototype." } } 
+        ] 
+    };
+    const experienceData = {
+        de: {
+            professional: [
+                { 
+                    title: "Wissenschaftliche Hilfskraft",
+                    company: "Universität Augsburg",
+                    details: "Deutschland | 12/2022 - Heute",
+                    date: "2022-12",
+                    complexity: 8,
+                    companyLink: "https://www.uni-augsburg.de/en/",
+                    affiliation: `
+                        <a href="https://www.uni-augsburg.de/de/fakultaet/mntf/mrm/prof/mateng/" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Lehrstuhl für Materials Engineering</a> (Prof. Dr.-Ing. Dietmar Koch)<br>
+                        <a href="https://www.uni-augsburg.de/de/fakultaet/mntf/mrm/prof/mateng/forschung/sustainable-cmc/" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Arbeitsgruppe: Sustainable CMC</a><br>
+                        Betreuer: Denny Schüppel
+                    `,
+                    responsibilities: [
+                        "Präzisionsschneiden von C/SiC- und C-C/SiC-Verbundwerkstoffen mittels Wasserstrahl- und Kreisschneidetechniken.",
+                        "Durchführung von metallographischen Probenvorbereitungsprotokollen, einschließlich Schleifen und Polieren.",
+                        "Mikrostrukturanalyse mittels optischer Mikroskopie und Rasterelektronenmikroskopie (REM).",
+                        "Interpretation von Bildergebnissen zur Charakterisierung von Materialeigenschaften und Defekten.",
+                        "Systematische Dokumentation aller Testproben und Analyseergebnisse."
+                    ]
+                },
+                { 
+                    title: "Studentische Hilfskraft",
+                    company: "FEMS Euromat 23",
+                    details: "Deutschland | 09/2023",
+                    date: "2023-09",
+                    complexity: 4,
+                    companyLink: "https://euromat2023.com/",
+                    responsibilities: [
+                        "Dauer: 03-07 September 2023.",
+                        "Koordination von Vortragsveranstaltungen auf der Konferenz.",
+                        "Management der Veranstaltungslogistik.",
+                        "Interaktion mit Akademikern und Unterstützung vor Ort."
+                    ]
+                },
+                { 
+                    title: "Werkstoffingenieurin",
+                    company: "Metmech Engineers",
+                    details: "Indien | 04/2020 - 04/2021",
+                    date: "2020-04",
+                    complexity: 6,
+                    affiliation: "Betreuer: T.R. Parthasarathy (Metallurg) & M. Jayaraj",
+                    responsibilities: [
+                        "Mikrostrukturelle Charakterisierung mittels REM und Lichtmikroskopie.",
+                        "Element- und Phasenanalyse mittels EDS und XRD.",
+                        "Bestimmung mechanischer Eigenschaften (Zugfestigkeit, Brinell/Vickers-Härte).",
+                        "Bewertung der Oberflächeneigenschaften (Pin-on-Disk-Verschleiß, Salzsprühnebelkorrosion).",
+                        "Prozessoptimierung für die Wärmebehandlung von Aluminiumlegierungen.",
+                        "Schadensanalyse mit Schwerpunkt auf Ermüdungsrisswachstum und Korrosionsmechanismen."
+                    ]
+                },
+                { 
+                    title: "Praktikant", 
+                    company: "Atmosphere Material Treaters Pvt. Ltd.",
+                    details: "Indien | 06/2018 - 07/2018",
+                    date: "2018-06",
+                    complexity: 3,
+                    companyLink: "https://www.linkedin.com/company/atmosphere-material-treaters-pvt-ltd/?originalSubdomain=in",
+                    responsibilities: [
+                        "Durchführung von Wärmebehandlungsverfahren für Aluminium- und Eisenlegierungen.",
+                        "Verwaltung von Ofenzyklen und Prozesssteuerung.",
+                        "Durchführung von Qualitätskontrollen und Einhaltung von Sicherheitsprotokollen."
+                    ]
+                }
+            ],
+            academic: [
+                { 
+                    title: "Masters in Materialwissenschaften", 
+                    company: "Universität Augsburg", 
+                    companyLink: "https://www.uni-augsburg.de/en/",
+                    details: "Deutschland | 10/2021 - 03/2025", 
+                    date: "2021-10", 
+                    complexity: 9,
+                    tooltipContent: {
+                        "Grundlagen der Materialwissenschaft": ["Materialphysik", "Materialchemie", "Seminar: 'Brennstoffzellen für mobile Anwendungen'"],
+                        "Laborpraktika": ["Tools for scientific computing (Projekt: Ising-Modell)", "Infrarot-Mikrospektroskopie unter Druck"],
+                        "Schwerpunkte": ["Faserverstärkte Verbundwerkstoffe: Verarbeitung und Werkstoffeigenschaften", "Finite-Elemente-Modellierung von Multiphysik-Phänomenen", "Keramische Faserverbundwerkstoffe", "Zerstörungsfreie Prüfung"],
+                        "Wahlfächer": ["Bioinspirierte Verbundwerkstoffe", "Oxidation und Korrosion", "Poröse Funktionswerkstoffe", "Recycling von Verbundwerkstoffen"]
+                    }
+                },
+                {
+                    title: "Bachelors in Maschinenbau", 
+                    company: "Anna University",
+                    companyLink: "https://www.annauniv.edu/",
+                    details: "Indien | 08/2016 - 04/2020", 
+                    date: "2016-08", complexity: 5,
+                    tooltipContent: {
+                        "Grundlagen der Ingenieurwissenschaften": ["Lineare Algebra & Statistik", "Angewandte Physik & Chemie", "Informatik-Grundlagen", "Grafik & CAD-Grundlagen", "Elektrotechnik", "Mechanik", "Umwelt, Ethik & Management"],
+                        "Kernfächer des Maschinenbaus": ["Fertigungs- & Werkstofftechnik", "Konstruktion & Analyse", "Thermodynamik & Strömungsmechanik", "Fahrzeugtechnik & Mechatronik"],
+                        "Wahlfächer": ["Unkonventionelle Bearbeitungsverfahren", "Prozessplanung & Kostenkalkulation", "Produktionsplanung & -steuerung", "Fortgeschrittene Verbrennungsmotoren"],
+                        "Laborpraktika": ["Grundlagen- und Werkstattlabore", "Fertigungswerkstätten", "Wärmetechnik-Labor", "Simulationslabore", "Mechatronik- & Regelungstechniklabore"]
+                    }
+                }
+            ],
+            workshops: [
+                { 
+                    title: "DGM Nachwuchsforum", 
+                    company: "Deutsche Gesellschaft für Materialkunde", 
+                    details: "Universität Kassel, Deutschland | 04/2023",
+                    date: "2023-04", 
+                    complexity: 2,
+                    titleLink: "https://dgm.de/de/netzwerk/nachwuchs/students/nachwuchsforum/2023#eventItem_2dd90081-7a37-409b-9d0e-416b6ba1e061",
+                    companyLink: "https://dgm.de/de/home",
+                    responsibilities: [
+                        "Aktives Forschungsdatenmanagement (AFDM)",
+                        "Nachhaltigkeit: Herausforderungen und Lösungen für unsere Gesellschaft",
+                        "Datenanalyse und Workflows in der Materialwissenschaft"
+                    ]
+                },
+                { 
+                    title: "Workshop über Optimierungstechniken", 
+                    company: "SRM Institute of Science and Technology", 
+                    details: "Indien | 06/2019", 
+                    date: "2019-06", 
+                    complexity: 2,
+                    responsibilities: [
+                        "Einführung in Optimierungstechniken",
+                        "Deterministische und Gradientenmethoden für Optimierungsprobleme",
+                        "Multikriterielle Optimierung und Designanwendung"
+                    ]
+                },
+                { title: "Grundlagen des Fahrzeugdesigns", company: "CEG Motorsports, College of Engineering Guindy", details: "Indien | 06/2018", date: "2018-06", complexity: 2 },
+            ],
+             trainings: [
+                 { 
+                    title: "Trainee in Faserverbundwerkstoffen",
+                    company: "Composites United e.V.",
+                    titleLink: "https://composites-united.com/en/education/trainee-program/",
+                    companyLink: "https://composites-united.com/",
+                    details: "Deutschland | 08/2023 - 04/2024",
+                    date: "2023-08", 
+                    complexity: 7,
+                    responsibilities: [
+                         "Keramische Faserverbundwerkstoffe an der Universität Augsburg, SGL Carbon und Brembo SGL",
+                         "Faserverbundwerkstoffe in der Luft- und Raumfahrt bei Airbus Helicopters",
+                         "Thermoplaste und Duroplaste am ICT Pfinztal",
+                         "Verarbeitung von Verbundwerkstoffen an der TU Delft",
+                         "Epoxidharzsysteme an der FH Nordwestschweiz",
+                         "Textiltechnik & Additive Fertigung am Institut für Flugzeugbau, Universität Stuttgart",
+                         "Strukturmechanik an der PFH Stade",
+                         "Hochleistungsfasern für Faserverbundwerkstoffe am DITF",
+                         "Werkstoffprüfung mit Composites bei Applus, IMA Dresden",
+                         "Zusätzliche Industriebesuche bei MT-Aerospace in Augsburg, Composite Village und DLR in Stade"
+                    ],
+                    stipend: "Einmaliges Stipendium von 1000 € erhalten"
+                },
+                 { 
+                    title: "Trainee",
+                    company: "Donracks TMTE Metaltech Pvt. Ltd.",
+                    details: "Indien | 05/2019 - 06/2019",
+                    date: "2019-05", 
+                    complexity: 4,
+                    companyLink: "https://www.donracks.in/",
+                    responsibilities: [
+                         "Optimierung von Arbeitsprozessen durch datengestützte Analysen und Zeit-Bewegungs-Studien.",
+                         "Verbesserung der Arbeitsplatzeffizienz durch Analyse von Prozessindikatoren.",
+                         "Beitrag zur Einhaltung der ISO 9001-Qualitätsstandards durch Anwendung von DMAIC-Prinzipien."
+                    ]
+                },
+                 { 
+                    title: "Trainee", 
+                    company: "TVS Training & Services", 
+                    details: "Indien | 01/2018", 
+                    date: "2018-01", 
+                    complexity: 3, 
+                    companyLink: "https://www.tvsts.com/",
+                    responsibilities: [
+                        "Fokus auf Additive Fertigung (FDM) und Produktdesign mit SolidWorks.",
+                        "Themen umfassten Dateierstellung, Geräteeinrichtung und Materialauswahl.",
+                        "Entwurf und 3D-Druck eines in SolidWorks gestalteten Produkts."
+                    ] 
+                },
+            ],
+            languages: [
+                { title: "Niveau A1", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2020", date: "2020-01", complexity: 1 },
+                { title: "Niveau A2", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2020", date: "2020-06", complexity: 1 },
+                { title: "Niveau B1", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2021", date: "2021-01", complexity: 1 },
+                { title: "Niveau B2", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2021", date: "2021-06", complexity: 1 },
+                { title: "Konversationskurs Deutsch B1.1", company: "Universität Augsburg", companyLink: "https://www.uni-augsburg.de/en/", details: "Deutschland | 2022", date: "2022-04", complexity: 1 },
+            ]
+        },
+        en: {
+            professional: [
+                { 
+                    title: "Research Assistant",
+                    company: "University of Augsburg",
+                    details: "Germany | 12/2022 - Present",
+                    date: "2022-12",
+                    complexity: 8,
+                    companyLink: "https://www.uni-augsburg.de/en/",
+                    affiliation: `
+                        <a href="https://www.uni-augsburg.de/de/fakultaet/mntf/mrm/prof/mateng/" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Chair of Materials Engineering</a> (Prof. Dr.-Ing. Dietmar Koch)<br>
+                        <a href="https://www.uni-augsburg.de/de/fakultaet/mntf/mrm/prof/mateng/forschung/sustainable-cmc/" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Working Group: Sustainable CMC</a><br>
+                        Supervisor: Denny Schüppel
+                    `,
+                    responsibilities: [
+                        "Precision sectioning of C/SiC and C-C/SiC composites using water jet and circular cutting techniques.",
+                        "Executed metallographic sample preparation protocols, including grinding and polishing.",
+                        "Conducted microstructural analysis via optical microscopy and Scanning Electron Microscopy (SEM).",
+                        "Interpreted imaging results to characterize material properties and defects.",
+                        "Maintained systematic documentation of all test specimens and analytical results."
+                    ]
+                },
+                { 
+                    title: "Student Assistant",
+                    company: "FEMS EUROMAT 23",
+                    details: "Germany | 09/2023",
+                    date: "2023-09", 
+                    complexity: 4,
+                    companyLink: "https://euromat2023.com/",
+                    responsibilities: [
+                        "Event duration: 03-07 September 2023.",
+                        "Managing paper presentation events at the conference.",
+                        "Handling event logistics.",
+                        "Interacting with and assisting academics on-site."
+                    ]
+                },
+                { 
+                    title: "Materials Engineer",
+                    company: "Metmech Engineers", 
+                    details: "India | 04/2020 - 04/2021",
+                    date: "2020-04",
+                    complexity: 6,
+                    affiliation: "Supervisors: T.R. Parthasarathy (Metallurgist) & M. Jayaraj",
+                    responsibilities: [
+                        "Microstructural characterization via SEM and optical microscopy.",
+                        "Elemental and phase analysis using EDS and XRD.",
+                        "Mechanical property assessment (tensile, Brinell/Vickers hardness).",
+                        "Surface performance evaluation (Pin-on-disk wear, salt spray corrosion).",
+                        "Process optimization for aluminum alloy heat treatments.",
+                        "Failure analysis focusing on fatigue crack growth and corrosion mechanisms."
+                    ]
+                },
+                { 
+                    title: "Intern", 
+                    company: "Atmosphere Material Treaters Pvt. Ltd.",
+                    details: "India | 06/2018 - 07/2018",
+                    date: "2018-06",
+                    complexity: 3,
+                    companyLink: "https://www.linkedin.com/company/atmosphere-material-treaters-pvt-ltd/?originalSubdomain=in",
+                    responsibilities: [
+                        "Executed heat treatment operations for aluminum and ferrous alloys.",
+                        "Managed furnace cycles and process control.",
+                        "Conducted quality inspections and adhered to safety protocols."
+                    ]
+                }
+            ],
+            academic: [
+                { 
+                    title: "Masters in Materials Science", 
+                    company: "University of Augsburg", 
+                    companyLink: "https://www.uni-augsburg.de/en/",
+                    details: "Germany | 10/2021 - 03/2025", 
+                    date: "2021-10", 
+                    complexity: 9,
+                    tooltipContent: {
+                        "Basics of Materials Science": ["Materials Physics", "Materials Chemistry", "Materials Science seminar: 'Fuel Cells for Mobile Application'"],
+                        "Lab courses": ["Tools for scientific computing, Project worked on 'Ising Model'", "Infrared Microspectroscopy under pressure"],
+                        "Focus": ["Fiber Reinforced composites: Processing and Materials properties", "Finite Element Modeling of Multiphysics Phenomena", "Ceramic Matrix Composites", "Non-Destructive Testing"],
+                        "Electives": ["Bioinspired Composites", "Oxidation and Corrosion", "Porous functional materials", "Recycling of composites"]
+                    }
+                },
+                {
+                    title: "Bachelors in Mechanical Engineering", 
+                    company: "Anna University",
+                    companyLink: "https://www.annauniv.edu/",
+                    details: "India | 08/2016 - 04/2020", 
+                    date: "2016-08", complexity: 5,
+                    tooltipContent: {
+                        "Engineering Basics": ["Linear Algebra & Statistics", "Applied Physics & Chemistry", "Computing Fundamentals", "Graphics & CAD Basics", "Electrical Engineering", "Mechanics", "Environment, Ethics & Management"],
+                        "Mechanical Engineering Core Courses": ["Manufacturing & Materials", "Design & Analysis", "Thermodynamics & Fluid Mechanics", "Automotive Engineering & Mechatronics"],
+                        "Elective courses": ["Unconventional Machining Processes", "Process Planning & Cost Estimation", "Production Planning & Control", "Advanced IC Engines"],
+                        "Lab Courses": ["Basic Science & Workshop Labs", "Manufacturing Workshops", "Thermal Engineering Lab", "Computing & Simulation labs", "Mechatronics & Control labs"]
+                    }
+                }
+            ],
+            workshops: [
+                 { 
+                    title: "DGM Young Talents Forum", 
+                    company: "German Materials Society", 
+                    details: "University of Kassel, Germany | 04/2023", 
+                    date: "2023-04", 
+                    complexity: 2,
+                    titleLink: "https://dgm.de/de/netzwerk/nachwuchs/students/nachwuchsforum/2023#eventItem_2dd90081-7a37-409b-9d0e-416b6ba1e061",
+                    companyLink: "https://dgm.de/de/home",
+                    responsibilities: [
+                        "Active research data management (ARDM)",
+                        "Sustainability; Challenges and Solutions for our Society",
+                        "Data analysis and workflows in Materials science"
+                    ]
+                },
+                { 
+                    title: "Workshop on Optimization techniques", 
+                    company: "SRM Institute of Science and Technology", 
+                    details: "India | 06/2019", 
+                    date: "2019-06", 
+                    complexity: 2,
+                    responsibilities: [
+                        "Introduction to optimization techniques",
+                        "Deterministic and gradient methods for optimization problems",
+                        "Multi-objective and design application"
+                    ]
+                },
+                { title: "Fundamentals of Vehicle design", company: "CEG Motorsports, College of Engineering Guindy", details: "India | 06/2018", date: "2018-06", complexity: 2 },
+            ],
+            trainings: [
+                { 
+                    title: "Trainee in Fiber Reinforced Composites",
+                    company: "Composites United e.V.",
+                    titleLink: "https://composites-united.com/en/education/trainee-program/",
+                    companyLink: "https://composites-united.com/",
+                    details: "Germany | 08/2023 - 04/2024",
+                    date: "2023-08", 
+                    complexity: 7,
+                    responsibilities: [
+                        "Ceramic Matrix Composites at Universität Augsburg, SGL Carbon, and Brembo SGL",
+                        "Aerospace Fiber Reinforced Composites at Airbus Helicopters",
+                        "Thermoplastics and Thermosets at ICT Pfinztal",
+                        "Composite Processing at TU Delft",
+                        "Epoxy Resin Systems at FHNW Switzerland",
+                        "Textile Technology & Additive Manufacturing at University of Stuttgart",
+                        "Structural Mechanics at PFH Stade",
+                        "High-Performance Fibers for Composites at DITF",
+                        "Composite Materials Testing at Applus, IMA Dresden",
+                        "Industrial visits to MT-Aerospace, Composite Village, and DLR Stade"
+                    ],
+                    stipend: "Awarded a one-time stipend of €1000"
+                },
+                 { 
+                    title: "Trainee",
+                    company: "Donracks TMTE Metaltech Pvt. Ltd.",
+                    details: "India | 05/2019 - 06/2019",
+                    date: "2019-05", 
+                    complexity: 4,
+                    companyLink: "https://www.donracks.in/",
+                    responsibilities: [
+                        "Optimized work processes through data-supported analyses and time-motion studies.",
+                        "Improved workplace efficiency by analyzing process indicators.",
+                        "Contributed to ISO 9001 quality standard compliance by applying DMAIC principles."
+                    ]
+                },
+                 { 
+                    title: "Trainee", 
+                    company: "TVS Training & Services", 
+                    details: "India | 01/2018", 
+                    date: "2018-01", 
+                    complexity: 3, 
+                    companyLink: "https://www.tvsts.com/",
+                    responsibilities: [
+                        "Focused on Additive Manufacturing (FDM) and product design with SolidWorks.",
+                        "Topics included file creation, device setup, and material selection based on application.",
+                        "Designed and 3D-printed a product using SolidWorks."
+                    ] 
+                },
+            ],
+            languages: [
+                { title: "German - Level A1", company: "Goethe-Institut, Chennai", details: "India | 2020", date: "2020-01", complexity: 1 },
+                { title: "German - Level A2", company: "Goethe-Institut, Chennai", details: "India | 2020", date: "2020-06", complexity: 1 },
+                { title: "German - Level B1", company: "Goethe-Institut, Chennai", details: "India | 2021", date: "2021-01", complexity: 1 },
+                { title: "German - Level B2", company: "Goethe-Institut, Chennai", details: "India | 2021", date: "2021-06", complexity: 1 },
+                { title: "Conversational German B1.1", company: "University of Augsburg", companyLink: "https://www.uni-augsburg.de/en/", details: "Germany | 2022", date: "2022-04", complexity: 1 },
+            ]
+        }
+    };
+    const certificationsData = [ { name: "Circular Economy", url: "https://coursera.org/share/50dd7d908e47e6bfa5ec40b5e396adf9" }, { name: "CATIA V5", url: "https://www.udemy.com/certificate/UC-2d94d0d3-f652-43b3-886e-dba606eb2522/" }, { name: "Siemens NX", url: "https://www.udemy.com/certificate/UC-efb0a285-47d8-4692-8d54-c42d74c089a7/" }, { name: "Additive Technologies in Metallurgy & Mechanical Engineering", url: "https://coursera.org/share/47d51dfbc86f99e9a68a78787b13630c" } ];
+
+    // --- STATE & CHARTS --- //
+    let currentGrade = 'industry';
+    let currentLang = 'de';
+    let skillsChart, careerChart;
+    let activeTooltip = {
+        index: null,
+        datasetIndex: null
+    };
+
+    // --- UI & RENDER FUNCTIONS --- //
+    const setGrade = (grade) => {
+        currentGrade = grade;
+        document.querySelectorAll('#industry-btn, #academia-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`${grade}-btn`).classList.add('active');
+        renderContent();
+    };
+
+    const setLanguage = (lang) => {
+        currentLang = lang;
+        document.documentElement.lang = lang;
+        document.querySelectorAll('#de-btn, #en-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`${lang}-btn`).classList.add('active');
+        
+        const elements = document.querySelectorAll("[data-i18n-key]");
+        elements.forEach(el => {
+            const key = el.getAttribute("data-i18n-key");
+            if (i18nData[currentLang][key]) {
+                el.innerHTML = i18nData[currentLang][key];
+            }
+        });
+        document.getElementById('project-filter').placeholder = i18nData[currentLang].filter_placeholder;
+        renderContent(true);
+    };
+
+    const renderContent = (isLangChange = false) => {
+        document.querySelectorAll(".view-content").forEach(view => {
+            view.classList.toggle("hidden", view.dataset.view !== currentGrade);
+        });
+        renderProjects();
+        renderSkills();
+        renderCertifications();
+        renderInterests();
+        createOrUpdateCareerChart();
+        createOrUpdateSkillsChart();
+    };
+    
+    const renderCertifications = () => {
+        const container = document.getElementById("certifications-container");
+        container.innerHTML = certificationsData.map(cert => `
+            <p><a href="${cert.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-mono">${cert.name}</a></p>
+        `).join("");
+    };
+
+    const renderInterests = () => {
+        const container = document.getElementById("interests-list");
+        if (!container) return;
+        const interestsData = i18nData[currentLang].interests;
+        if (!interestsData) return;
+        const interestKeys = Object.keys(interestsData).filter(k => !k.endsWith('_details'));
+        
+        container.innerHTML = interestKeys.map(key => {
+            const title = interestsData[key];
+            return `<button data-interest-id="${key}" class="interest-item block w-full text-left p-2 rounded-md hover:bg-gray-100"><span class="font-semibold text-gray-700">&#8226;</span> ${title}</button>`;
+        }).join("");
+    };
+
+    const renderSkills = () => {
+        const container = document.getElementById('skills-datasheet');
+        const i18n = i18nData[currentLang];
+        
+        const skillCategories = ['lab', 'cad', 'data', 'mfg'];
+        let html = '';
+        skillCategories.forEach(cat => {
+            html += `
+                <div class="p-4 border rounded-md">
+                    <h3 class="font-bold text-lg">${i18n[`skill_${cat}_title`]}</h3>
+                    <ul class="list-disc list-inside mt-2 text-gray-600">
+                        ${i18n[`skill_${cat}_list`].map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    };
+
+    const renderProjects = () => {
+        const headContainer = document.getElementById('project-table-head');
+        const bodyContainer = document.getElementById('project-table-body');
+        const projects = projectsData[currentLang];
+        const i18n = i18nData[currentLang];
+
+        if (currentGrade === 'industry') {
+            headContainer.innerHTML = `<tr>${i18n.project_table_header.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            bodyContainer.innerHTML = projects.map(p => `
+                <tr>
+                    <td>${p.title}</td>
+                    <td>${p.role}</td>
+                    <td>${p.industry.problem}</td>
+                    <td>${p.industry.action}</td>
+                    <td>${p.industry.result}</td>
+                </tr>
+            `).join('');
+        } else {
+            headContainer.innerHTML = `<tr>${i18n.project_table_header_academia.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            bodyContainer.innerHTML = projects.map(p => `
+                <tr>
+                    <td>${p.title}</td>
+                    <td>${p.role}</td>
+                    <td>${p.academia.abstract}</td>
+                </tr>
+            `).join('');
+        }
+    };
+    
+    window.filterProjects = () => {
+        const filter = document.getElementById('project-filter').value.toUpperCase();
+        const table = document.getElementById('project-table-body');
+        const tr = table.getElementsByTagName('tr');
+        for (let i = 0; i < tr.length; i++) {
+            const td_all = tr[i].getElementsByTagName('td');
+            let textValue = "";
+            for (let j = 0; j < td_all.length; j++) {
+                if (td_all[j]) {
+                    textValue += td_all[j].textContent || td_all[j].innerText;
+                }
+            }
+            if (textValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+
+    function createOrUpdateSkillsChart() {
+        const ctx = document.getElementById('skillsChart').getContext('2d');
+        if (!ctx) return;
+        const chartData = {
+            labels: i18nData[currentLang].chart_topics,
+            datasets: [{
+                label: i18nData[currentLang].chart_label,
+                data: [9, 8, 9, 8, 10],
+                backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                borderColor: 'rgba(13, 110, 253, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(13, 110, 253, 1)',
+            }]
+        };
+        const chartOptions = {
+            maintainAspectRatio: false,
+            scales: { r: { angleLines: { color: '#dee2e6' }, grid: { color: '#dee2e6' }, pointLabels: { font: { size: 14, family: "'Roboto', sans-serif" }, color: '#333' }, ticks: { display: true, stepSize: 2 }, suggestedMin: 0, suggestedMax: 10 } },
+            plugins: { legend: { display: false } }
+        };
+        if (skillsChart) {
+            skillsChart.data = chartData;
+            skillsChart.options = chartOptions;
+            skillsChart.update();
+        } else {
+            skillsChart = new Chart(ctx, { type: 'radar', data: chartData, options: chartOptions });
+        }
+    }
+
+    function createOrUpdateCareerChart() {
+        const ctx = document.getElementById('careerChart').getContext('2d');
+        if (!ctx) return;
+        const tooltipEl = document.getElementById('career-chart-tooltip');
+        
+        const professionalData = experienceData[currentLang].professional.map(item => ({...item, x: item.date, y: item.complexity }));
+        const academicData = experienceData[currentLang].academic.map(item => ({...item, x: item.date, y: item.complexity }));
+        const workshopData = experienceData[currentLang].workshops.map(item => ({...item, x: item.date, y: item.complexity }));
+        const trainingData = experienceData[currentLang].trainings.map(item => ({...item, x: item.date, y: item.complexity }));
+        const languageData = experienceData[currentLang].languages.map(item => ({...item, x: item.date, y: item.complexity }));
+
+        const chartData = {
+            datasets: [
+                { label: 'Professional', data: professionalData, backgroundColor: 'rgba(13, 110, 253, 0.7)', borderColor: 'rgba(13, 110, 253, 1)', pointRadius: 8, pointHoverRadius: 12 },
+                { label: 'Academic', data: academicData, backgroundColor: 'rgba(25, 135, 84, 0.7)', borderColor: 'rgba(25, 135, 84, 1)', pointRadius: 8, pointHoverRadius: 12 },
+                { label: 'Workshops', data: workshopData, backgroundColor: 'rgba(249, 115, 22, 0.7)', borderColor: 'rgba(249, 115, 22, 1)', pointRadius: 6, pointHoverRadius: 10 },
+                { label: 'Trainings', data: trainingData, backgroundColor: 'rgba(139, 92, 246, 0.7)', borderColor: 'rgba(139, 92, 246, 1)', pointRadius: 7, pointHoverRadius: 11 },
+                { label: 'Languages', data: languageData, backgroundColor: 'rgba(20, 184, 166, 0.7)', borderColor: 'rgba(20, 184, 166, 1)', pointRadius: 5, pointHoverRadius: 9 }
+            ]
+        };
+        
+        const getTooltipHtml = (pointData) => {
+             if (pointData.tooltipContent) {
+                tooltipEl.style.width = '600px';
+                const content = pointData.tooltipContent;
+                let innerHtml = `<h4 class="font-bold text-lg mb-2 text-gray-800">${pointData.title} at ${pointData.companyLink ? `<a href="${pointData.companyLink}" target="_blank" class="text-blue-600 hover:underline">${pointData.company}</a>` : pointData.company}</h4>`;
+                innerHtml += `<p class="text-sm text-gray-600 mb-2">${pointData.details}</p>`;
+                innerHtml += '<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm">';
+                for (const [key, value] of Object.entries(content)) {
+                    innerHtml += `<div><strong class="text-gray-600">${key}</strong><ul class="list-disc list-inside mt-1">`;
+                    value.forEach(item => { innerHtml += `<li>${item}</li>`; });
+                    innerHtml += '</ul></div>';
+                }
+                innerHtml += '</div>';
+                return innerHtml;
+            } else {
+               tooltipEl.style.width = 'auto';
+               let titleHtml = pointData.title;
+               let detailsHtml = `<p class="text-sm text-gray-600">${pointData.details}</p>`;
+
+               if (pointData.company) {
+                    let companyNameHtml = pointData.companyLink 
+                        ? `<a href="${pointData.companyLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${pointData.company}</a>` 
+                        : pointData.company;
+                    
+                    let titleLinkHtml = pointData.titleLink
+                        ? `<a href="${pointData.titleLink}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${pointData.title}</a>`
+                        : pointData.title
+
+                    titleHtml = `<h4 class="font-bold">${titleLinkHtml} at ${companyNameHtml}</h4>`;
+               } else {
+                    titleHtml = `<h4 class="font-bold">${pointData.title}</h4>`;
+               }
+
+
+               let innerHtml = titleHtml + detailsHtml;
+               
+               if (pointData.affiliation) {
+                   innerHtml += `<p class="text-sm text-gray-500 mt-1">${pointData.affiliation}</p>`;
+               }
+               
+               if (pointData.stipend) {
+                   innerHtml += `<p class="text-sm text-green-600 mt-2 font-semibold">${pointData.stipend}</p>`;
+               }
+
+               if (pointData.responsibilities) {
+                   innerHtml += '<ul class="list-disc list-inside mt-2 text-sm">';
+                   pointData.responsibilities.forEach(item => {
+                       innerHtml += `<li>${item}</li>`;
+                   });
+                   innerHtml += '</ul>';
+               }
+               return innerHtml;
+            }
+        }
+
+        const chartOptions = {
+            maintainAspectRatio: false,
+            scales: {
+                x: { type: 'time', time: { unit: 'year' }, grid: { color: '#e9ecef' }, title: { display: true, text: 'Date' } },
+                y: { beginAtZero: true, grid: { color: '#e9ecef' }, title: { display: true, text: 'Complexity / Responsibility Index' } }
+            },
+            onClick: (event, elements) => {
+                const tooltipEl = document.getElementById('career-chart-tooltip');
+                if (elements.length === 0) {
+                     if (!tooltipEl.contains(event.native.target)) {
+                        activeTooltip.index = null;
+                        activeTooltip.datasetIndex = null;
+                        tooltipEl.classList.remove('visible');
+                     }
+                     return;
+                }
+                const { datasetIndex, index } = elements[0];
+                
+                if (activeTooltip.index === index && activeTooltip.datasetIndex === datasetIndex) {
+                    activeTooltip.index = null;
+                    activeTooltip.datasetIndex = null;
+                    tooltipEl.classList.remove('visible');
+                } else {
+                    activeTooltip.index = index;
+                    activeTooltip.datasetIndex = datasetIndex;
+                    const pointData = chartData.datasets[datasetIndex].data[index];
+                    const { x, y } = elements[0].element;
+                    
+                    tooltipEl.innerHTML = getTooltipHtml(pointData);
+                    tooltipEl.classList.add('visible');
+
+                    const canvasRect = ctx.canvas.getBoundingClientRect();
+                    let left = canvasRect.left + window.scrollX + x + 15;
+                    let top = canvasRect.top + window.scrollY + y;
+
+                    // Ensure tooltip doesn't go off-screen
+                    setTimeout(() => {
+                        if (left + tooltipEl.offsetWidth > window.innerWidth - 10) {
+                            left = canvasRect.left + window.scrollX + x - tooltipEl.offsetWidth - 15;
+                        }
+                        if (left < 10) {
+                            left = 10;
+                        }
+                        if (top < window.scrollY) {
+                            top = window.scrollY + 10;
+                        }
+                        if (top + tooltipEl.offsetHeight > window.innerHeight + window.scrollY) {
+                            top = window.innerHeight + window.scrollY - tooltipEl.offsetHeight - 10;
+                        }
+                        tooltipEl.style.left = `${left}px`;
+                        tooltipEl.style.top = `${top}px`;
+                    }, 0);
+                }
+            },
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: { enabled: false }
+            },
+             onHover: (event, chartElement) => {
+                event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+             }
+        };
+
+        if (careerChart) {
+            careerChart.destroy();
+        }
+        careerChart = new Chart(ctx, { type: 'scatter', data: chartData, options: chartOptions });
+
+        // Add a click listener to the document to hide the tooltip when clicking outside
+        document.addEventListener('click', function(event) {
+            const tooltipEl = document.getElementById('career-chart-tooltip');
+            if (careerChart && !ctx.canvas.contains(event.target) && !tooltipEl.contains(event.target)) {
+                activeTooltip.index = null;
+                activeTooltip.datasetIndex = null;
+                tooltipEl.classList.remove('visible');
+            }
+        });
+    }
+
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${button.dataset.tab}`).classList.add('active');
+            if(button.dataset.tab === 'mechanical') createOrUpdateSkillsChart();
+            if(button.dataset.tab === 'processing') setTimeout(() => createOrUpdateCareerChart(), 0);
+        });
+    });
+
+    document.getElementById('industry-btn').addEventListener('click', () => setGrade('industry'));
+    document.getElementById('academia-btn').addEventListener('click', () => setGrade('academia'));
+    document.getElementById('de-btn').addEventListener('click', () => setLanguage('de'));
+    document.getElementById('en-btn').addEventListener('click', () => setLanguage('en'));
+
+    setLanguage('de');
+    setGrade('industry');
+    
+    // Collapsible section for skills
+    const skillsInfoToggle = document.getElementById('skills-info-toggle');
+    const skillsInfoContent = document.getElementById('skills-info-content');
+    const skillsInfoIcon = document.getElementById('skills-info-icon');
+
+    skillsInfoToggle.addEventListener('click', () => {
+        skillsInfoContent.classList.toggle('open');
+        skillsInfoIcon.classList.toggle('rotate-180');
+    });
+    
+    // Interactive Interests
+    const interestsList = document.getElementById('interests-list');
+    const interestsTooltip = document.getElementById('interests-tooltip');
+    let activeInterest = null;
+
+    interestsList.addEventListener('click', (event) => {
+        const button = event.target.closest('.interest-item');
+        if(!button) return;
+
+        const interestId = button.getAttribute('data-interest-id');
+
+        if(activeInterest === button){
+             interestsTooltip.classList.remove('visible');
+             activeInterest.classList.remove('bg-blue-100');
+             activeInterest = null;
+             return;
+        }
+
+        if(activeInterest) {
+            activeInterest.classList.remove('bg-blue-100');
+        }
+        
+        activeInterest = button;
+        activeInterest.classList.add('bg-blue-100');
+        
+        const details = i18nData[currentLang].interests[`${interestId}_details`];
+        interestsTooltip.innerHTML = `<p class="text-sm">${details}</p>`;
+        
+        const buttonRect = button.getBoundingClientRect();
+        interestsTooltip.classList.add('visible');
+        
+        let top = buttonRect.top + window.scrollY;
+        let left = buttonRect.right + window.scrollX + 10;
+        
+        setTimeout(() => {
+            const tooltipRect = interestsTooltip.getBoundingClientRect();
+            if (left + tooltipRect.width > window.innerWidth - 10) {
+                left = buttonRect.left + window.scrollX - tooltipRect.width - 10;
+            }
+             if (top + tooltipRect.height > window.innerHeight + window.scrollY) {
+                top = window.innerHeight + window.scrollY - tooltipRect.height - 10;
+            }
+            if (left < 10) {
+                left = 10;
+            }
+            if (top < 10) {
+                top = 10;
+            }
+
+            interestsTooltip.style.left = `${left}px`;
+            interestsTooltip.style.top = `${top}px`;
+        }, 0);
+    });
+    
+    document.addEventListener('click', function(event) {
+        if (interestsList && !interestsList.contains(event.target) && !interestsTooltip.contains(event.target)) {
+            interestsTooltip.classList.remove('visible');
+            if (activeInterest) {
+                activeInterest.classList.remove('bg-blue-100');
+                activeInterest = null;
+            }
+        }
+    });
+
+});
+</script>
+</body>
+</html>
