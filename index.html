@@ -309,8 +309,13 @@ document.addEventListener('DOMContentLoaded', () => {
             skill_mfg_list: ["Aluminium-Wärmebehandlung", "Additive Fertigung (FDM) von thermoplastischen Polymeren", "Vakuuminfusion, RTM & PIP für Verbundwerkstoffe"],
             chart_label: "Kompetenzniveau",
             chart_topics: ["Labor & Charakterisierung", "FEM Simulation", "CAD Design", "Datenanalyse", "Werkstoffverarbeitung"],
-            processing_title: "Verarbeitungshistorie (Karriere)",
-            processing_subtitle: "Dieses Diagramm visualisiert meine Karriere als Verarbeitungshistorie und bildet die Erfahrung im Zeitverlauf gegen einen steigenden Kompetenz- und Verantwortungsindex ab. Klicken Sie auf einen Datenpunkt für eine detaillierte Analyse.",
+            legend_professional: "Beruflich",
+            legend_academic: "Akademisch",
+            legend_workshops: "Workshops",
+            legend_trainings: "Schulungen",
+            legend_languages: "Sprachen",
+            processing_title: "Entwicklungs-Zeitleiste",
+            processing_subtitle: "Dieses Diagramm visualisiert meinen Entwicklungsweg und bildet wichtige Meilensteine in Ausbildung, Schulungen, beruflichen Rollen und Spracherwerb gegen einen steigenden Kompetenz- und Verantwortungsindex ab. Klicken Sie auf einen Datenpunkt für eine detaillierte Analyse.",
             projects_title: "Projektdatenbank",
             projects_subtitle: "Dieser Abschnitt liefert konkrete Beweise für meine Problemlösungsfähigkeiten. Jedes Projekt wird als Fallstudie präsentiert, die sowohl für die kommerzielle als auch für die akademische Begutachtung anpassbar ist.",
             filter_placeholder: "Projekte filtern nach Titel, Rolle...",
@@ -360,8 +365,13 @@ document.addEventListener('DOMContentLoaded', () => {
             skill_mfg_list: ["Aluminum Heat Treatment", "Additive Manufacturing (FDM) of Thermoplastic Polymers", "Composite Processing (Vacuum Infusion, RTM, PIP)"],
             chart_label: "Proficiency Level",
             chart_topics: ["Lab & Characterization", "FEM Simulation", "CAD Design", "Data Analysis", "Material Processing"],
-            processing_title: "Processing History (Career)",
-            processing_subtitle: "This chart visualizes my career as a processing history, mapping experience over time against a rising index of competence and responsibility. Click on any data point for a detailed analysis.",
+            legend_professional: "Professional",
+            legend_academic: "Academic",
+            legend_workshops: "Workshops",
+            legend_trainings: "Trainings",
+            legend_languages: "Languages",
+            processing_title: "Development Timeline",
+            processing_subtitle: "This chart visualizes my development timeline, mapping key milestones in education, training, professional roles, and language acquisition against a rising index of competence and responsibility. Click on any data point for a detailed analysis.",
             projects_title: "Project Database",
             projects_subtitle: "This section provides concrete evidence of my problem-solving capabilities. Each project is presented as a case study, adaptable for both commercial and academic review.",
             filter_placeholder: "Filter projects by title, role...",
@@ -567,6 +577,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { title: "Niveau B1", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2021", date: "2021-01", complexity: 1 },
                 { title: "Niveau B2", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2021", date: "2021-06", complexity: 1 },
                 { title: "Konversationskurs Deutsch B1.1", company: "Universität Augsburg", companyLink: "https://www.uni-augsburg.de/en/", details: "Deutschland | 2022", date: "2022-04", complexity: 1 },
+                { title: "Japanisch - Niveau N5", company: "Japan Educational Exchanges and Services (JEES)", companyLink: "https://www.jees.or.jp/index.htm", details: "Indien | 2016-2017", date: "2016-01", complexity: 1 },
             ]
         },
         en: {
@@ -749,6 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { title: "German - Level B1", company: "Goethe-Institut, Chennai", details: "India | 2021", date: "2021-01", complexity: 1 },
                 { title: "German - Level B2", company: "Goethe-Institut, Chennai", details: "India | 2021", date: "2021-06", complexity: 1 },
                 { title: "Conversational German B1.1", company: "University of Augsburg", companyLink: "https://www.uni-augsburg.de/en/", details: "Germany | 2022", date: "2022-04", complexity: 1 },
+                { title: "Japanese - Level N5", company: "Japan Educational Exchanges and Services (JEES)", companyLink: "https://www.jees.or.jp/index.htm", details: "India | 2016-2017", date: "2016-01", complexity: 1 },
             ]
         }
     };
@@ -929,11 +941,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const chartData = {
             datasets: [
-                { label: 'Professional', data: professionalData, backgroundColor: 'rgba(13, 110, 253, 0.7)', borderColor: 'rgba(13, 110, 253, 1)', pointRadius: 8, pointHoverRadius: 12 },
-                { label: 'Academic', data: academicData, backgroundColor: 'rgba(25, 135, 84, 0.7)', borderColor: 'rgba(25, 135, 84, 1)', pointRadius: 8, pointHoverRadius: 12 },
-                { label: 'Workshops', data: workshopData, backgroundColor: 'rgba(249, 115, 22, 0.7)', borderColor: 'rgba(249, 115, 22, 1)', pointRadius: 6, pointHoverRadius: 10 },
-                { label: 'Trainings', data: trainingData, backgroundColor: 'rgba(139, 92, 246, 0.7)', borderColor: 'rgba(139, 92, 246, 1)', pointRadius: 7, pointHoverRadius: 11 },
-                { label: 'Languages', data: languageData, backgroundColor: 'rgba(20, 184, 166, 0.7)', borderColor: 'rgba(20, 184, 166, 1)', pointRadius: 5, pointHoverRadius: 9 }
+                { label: i18nData[currentLang].legend_professional, data: professionalData, backgroundColor: 'rgba(13, 110, 253, 0.7)', borderColor: 'rgba(13, 110, 253, 1)', pointRadius: 8, pointHoverRadius: 12 },
+                { label: i18nData[currentLang].legend_academic, data: academicData, backgroundColor: 'rgba(25, 135, 84, 0.7)', borderColor: 'rgba(25, 135, 84, 1)', pointRadius: 8, pointHoverRadius: 12 },
+                { label: i18nData[currentLang].legend_workshops, data: workshopData, backgroundColor: 'rgba(249, 115, 22, 0.7)', borderColor: 'rgba(249, 115, 22, 1)', pointRadius: 6, pointHoverRadius: 10 },
+                { label: i18nData[currentLang].legend_trainings, data: trainingData, backgroundColor: 'rgba(139, 92, 246, 0.7)', borderColor: 'rgba(139, 92, 246, 1)', pointRadius: 7, pointHoverRadius: 11 },
+                { label: i18nData[currentLang].legend_languages, data: languageData, backgroundColor: 'rgba(20, 184, 166, 0.7)', borderColor: 'rgba(20, 184, 166, 1)', pointRadius: 5, pointHoverRadius: 9 }
             ]
         };
         
