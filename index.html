@@ -16,14 +16,12 @@
     Visuals: The design uses a clean, technical aesthetic with a color palette of whites, grays, and a sharp blue accent, reminiscent of scientific software or a technical database. Typography prioritizes clarity with Roboto for prose and Roboto Mono for data points.
     Interactivity:
     - Tabbed Navigation: Allows users to explore different facets of the profile in an organized manner.
+    - "Grade" Toggle (Industry/Academia): Rebrands the core concept, allowing recruiters to view data optimized for either a 'Commercial Grade' or a 'Research Grade' profile.
     - Interactive Career Chart: The timeline is a "Process History" scatter plot, mapping career milestones against a competence index over time. Tooltips are "sticky" on click for easier reading.
     - Filterable Project Database: The "Microstructure Analysis" section presents projects in a searchable table, enabling users to quickly find relevant case studies.
     - Radar Chart: The skills radar chart is retained under "Mechanical Properties" to provide a quick visual summary of capabilities.
     -->
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f0f2f5;
@@ -41,19 +39,31 @@
             border: 1px solid #dee2e6;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-        .nav-link {
+        .tab-button {
             cursor: pointer;
             border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
             color: #495057;
         }
-        .nav-link.active {
+        .tab-button.active {
             border-bottom-color: #0d6efd;
             color: #0d6efd;
             font-weight: 500;
         }
-        .nav-link:hover {
+        .tab-button:hover {
+            background-color: #f8f9fa;
             border-bottom-color: #adb5bd;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .toggle-container {
             display: flex;
@@ -140,26 +150,27 @@
         .rotate-180 {
             transform: rotate(180deg);
         }
-        .interest-item:hover {
-            color: #0d6efd;
-        }
-        .interest-item:hover svg {
-             color: #0d6efd;
-        }
     </style>
 </head>
 <body class="p-2 sm:p-4 md:p-6">
 
     <div class="max-w-7xl mx-auto databank-container rounded-lg">
         <!-- Header -->
-        <header class="p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white/80 backdrop-blur-sm z-50">
-            <div class="flex flex-col sm:flex-row justify-between items-center">
+        <header class="p-4 sm:p-6 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                     <h1 class="text-2xl sm:text-3xl font-bold text-gray-800" data-i18n-key="main_title"></h1>
                     <p class="text-md sm:text-lg text-gray-600" data-i18n-key="subtitle"></p>
                 </div>
                 <div class="flex flex-wrap justify-end items-center space-x-2 sm:space-x-4 mt-4 sm:mt-0">
-                     <div class="text-right">
+                    <div class="text-right">
+                        <label class="block text-sm font-medium text-gray-500" data-i18n-key="grade_label"></label>
+                        <div class="toggle-container mt-1">
+                            <div id="industry-btn" class="toggle-button" data-i18n-key="grade_commercial"></div>
+                            <div id="academia-btn" class="toggle-button" data-i18n-key="grade_research"></div>
+                        </div>
+                    </div>
+                    <div class="text-right">
                         <label class="block text-sm font-medium text-gray-500" data-i18n-key="language_label"></label>
                         <div class="toggle-container mt-1">
                             <div id="de-btn" class="toggle-button">DE</div>
@@ -168,24 +179,26 @@
                     </div>
                 </div>
             </div>
-            <!-- Tab Navigation -->
-            <nav id="main-nav" class="flex flex-wrap border-t border-gray-200 mt-4 pt-4 -mb-4 -mx-4 sm:-mb-6 sm:-mx-6 px-4 sm:px-6 bg-gray-50/50">
-                <a href="#general" class="nav-link flex-auto px-2 py-3 sm:px-4 text-sm sm:text-base active" data-i18n-key="tab_general"></a>
-                <a href="#mechanical" class="nav-link flex-auto px-2 py-3 sm:px-4 text-sm sm:text-base" data-i18n-key="tab_mechanical"></a>
-                <a href="#processing" class="nav-link flex-auto px-2 py-3 sm:px-4 text-sm sm:text-base" data-i18n-key="tab_processing"></a>
-                <a href="#microstructure" class="nav-link flex-auto px-2 py-3 sm:px-4 text-sm sm:text-base" data-i18n-key="tab_microstructure"></a>
-            </nav>
         </header>
 
-        <!-- Main Content -->
+        <!-- Tab Navigation -->
+        <nav class="flex flex-wrap border-b border-gray-200 bg-gray-50/50">
+            <button class="flex-auto tab-button active px-2 py-3 sm:px-4 text-sm sm:text-base" data-tab="general" data-i18n-key="tab_general"></button>
+            <button class="flex-auto tab-button px-2 py-3 sm:px-4 text-sm sm:text-base" data-tab="mechanical" data-i18n-key="tab_mechanical"></button>
+            <button class="flex-auto tab-button px-2 py-3 sm:px-4 text-sm sm:text-base" data-tab="processing" data-i18n-key="tab_processing"></button>
+            <button class="flex-auto tab-button px-2 py-3 sm:px-4 text-sm sm:text-base" data-tab="microstructure" data-i18n-key="tab_microstructure"></button>
+        </nav>
+
+        <!-- Tab Content -->
         <main class="p-4 sm:p-6">
             <!-- General Properties -->
-            <section id="general" class="pt-20 -mt-20 pb-16">
+            <div id="tab-general" class="tab-content active">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="md:col-span-2">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4" data-i18n-key="summary_title"></h2>
                         <div id="content-container" class="text-gray-700 text-lg space-y-4">
-                            <p class="text-justify" data-i18n-key="industry_intro"></p>
+                            <p class="view-content text-justify" data-view="industry" data-i18n-key="industry_intro"></p>
+                            <p class="view-content hidden text-justify" data-view="academia" data-i18n-key="academia_intro"></p>
                         </div>
                          <div class="mt-8 relative">
                             <h3 class="text-xl font-bold text-gray-800 mb-4" data-i18n-key="interests_title"></h3>
@@ -206,10 +219,10 @@
                             </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
             <!-- Mechanical Properties (Skills) -->
-            <section id="mechanical" class="pt-20 -mt-20 pb-16">
+            <div id="tab-mechanical" class="tab-content">
                  <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n-key="skills_title"></h2>
                  <div>
                     <button id="skills-info-toggle" class="flex items-center text-sm text-gray-500 mb-4 hover:text-blue-600">
@@ -225,20 +238,20 @@
                     <div id="skills-datasheet" class="space-y-4">
                         </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Development Timeline (was Processing History) -->
-            <section id="processing" class="pt-20 -mt-20 pb-16">
+            <!-- Processing History (Timeline) -->
+            <div id="tab-processing" class="tab-content">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n-key="processing_title"></h2>
                 <p class="text-gray-500 mb-4" data-i18n-key="processing_subtitle"></p>
                 <div class="relative">
                     <div class="h-96 w-full"><canvas id="careerChart"></canvas></div>
                     <div id="career-chart-tooltip" class="tooltip-container"></div>
                 </div>
-            </section>
+            </div>
 
             <!-- Microstructure Analysis (Projects) -->
-            <section id="microstructure" class="pt-20 -mt-20 pb-16">
+            <div id="tab-microstructure" class="tab-content">
                  <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n-key="projects_title"></h2>
                  <p class="text-sm text-gray-500 mb-4" data-i18n-key="projects_subtitle"></p>
                  <input type="text" id="project-filter" class="filter-input mb-4" onkeyup="filterProjects()">
@@ -248,7 +261,7 @@
                         <tbody id="project-table-body"></tbody>
                     </table>
                  </div>
-            </section>
+            </div>
         </main>
     </div>
 <script>
@@ -259,11 +272,14 @@ document.addEventListener('DOMContentLoaded', () => {
         de: {
             main_title: "Material-Datenblatt: Jayashruthi Rangarajan",
             subtitle: "Werkstoffingenieurin",
+            grade_label: "Profil-Grad",
+            grade_commercial: "Industrie",
+            grade_research: "Akademia",
             language_label: "Sprache",
             tab_general: "Allgemeine Eigenschaften",
             tab_mechanical: "Mechanische Eigenschaften",
-            tab_processing: "Entwicklungs-Zeitleiste",
-            tab_microstructure: "Projektdatenbank",
+            tab_processing: "Verarbeitungshistorie",
+            tab_microstructure: "Mikrostrukturanalyse",
             summary_title: "Zusammenfassung",
             interests_title: "Interessengebiete",
             interests: {
@@ -278,6 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             contact_title: "Daten-Link",
             industry_intro: "Eine ergebnisorientierte Werkstoffingenieurin mit praktischer Erfahrung in der Materialverarbeitung und -charakterisierung. Meine Expertise umfasst die Optimierung von Fertigungsprozessen wie der Polymerinfiltration & Pyrolyse (PIP) sowie die Durchführung detaillierter Schadensanalysen, mechanischer Prüfungen (Zug, Verschleiß) und mikrostruktureller Charakterisierungen zur Gewährleistung der Bauteilzuverlässigkeit und -leistung.",
+            academia_intro: "Meine Forschungsinteressen konzentrieren sich auf die Optimierung von Materialeigenschaften über ein breites Spektrum von Werkstoffklassen, einschließlich Verbundwerkstoffen, Metallen und Polymeren. Besonders motiviert mich die Steigerung der Materialleistung zur Verbesserung der Ressourcen- und Energieeffizienz, was meiner Leidenschaft für Nachhaltigkeit entspricht. Aufbauend auf meinen grundlegenden Kenntnissen und praktischen Erfahrungen strebe ich eine Promotion an, die sich auf die Entwicklung neuartiger und nachhaltiger Materiallösungen für anspruchsvolle Anwendungen konzentriert.",
             certifications_title: "Zertifizierungen",
             skills_title: "Kennwerte",
             skills_subtitle_prompt: "Klicken für Details zur Skala",
@@ -300,9 +317,10 @@ document.addEventListener('DOMContentLoaded', () => {
             processing_title: "Entwicklungs-Zeitleiste",
             processing_subtitle: "Dieses Diagramm visualisiert meinen Entwicklungsweg und bildet wichtige Meilensteine in Ausbildung, Schulungen, beruflichen Rollen und Spracherwerb gegen einen steigenden Kompetenz- und Verantwortungsindex ab. Klicken Sie auf einen Datenpunkt für eine detaillierte Analyse.",
             projects_title: "Projektdatenbank",
-            projects_subtitle: "Dieser Abschnitt liefert konkrete Beweise für meine Problemlösungsfähigkeiten. Jedes Projekt wird als Fallstudie präsentiert.",
+            projects_subtitle: "Dieser Abschnitt liefert konkrete Beweise für meine Problemlösungsfähigkeiten. Jedes Projekt wird als Fallstudie präsentiert, die sowohl für die kommerzielle als auch für die akademische Begutachtung anpassbar ist.",
             filter_placeholder: "Projekte filtern nach Titel, Rolle...",
             project_table_header: ["Titel", "Rolle", "Problem", "Aktion", "Ergebnis"],
+            project_table_header_academia: ["Titel", "Rolle", "Zusammenfassung"],
             project_problem: "Problem",
             project_action: "Aktion",
             project_result: "Ergebnis"
@@ -310,11 +328,14 @@ document.addEventListener('DOMContentLoaded', () => {
         en: {
             main_title: "Material Datasheet: Jayashruthi Rangarajan",
             subtitle: "Materials Engineer",
+            grade_label: "Profile Grade",
+            grade_commercial: "Commercial",
+            grade_research: "Academia",
             language_label: "Language",
             tab_general: "General Properties",
             tab_mechanical: "Mechanical Properties",
-            tab_processing: "Development Timeline",
-            tab_microstructure: "Project Database",
+            tab_processing: "Processing History",
+            tab_microstructure: "Microstructure Analysis",
             summary_title: "Executive Summary",
             interests_title: "Fields of Interest",
             interests: {
@@ -329,6 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             contact_title: "Data Link",
             industry_intro: "A results-oriented Materials Engineer with hands-on experience in material processing and characterization. My expertise includes optimizing manufacturing processes like Polymer Infiltration & Pyrolysis (PIP) and conducting detailed failure analysis, mechanical testing (tensile, wear), and microstructural characterization to ensure component reliability and performance.",
+            academia_intro: "My research interests are centered on the optimization of material properties across a broad range of classes, including composites, metals, and polymers. I am particularly motivated by enhancing material performance to improve both resource and energy efficiency, which aligns with my passion for sustainability as a whole. Drawing on my foundational knowledge and practical experience, I am eager to pursue doctoral research focused on developing novel and sustainable material solutions for demanding applications.",
             certifications_title: "Certifications",
             skills_title: "Key Performance Indicators",
             skills_subtitle_prompt: "Click for details on the scale",
@@ -351,9 +373,10 @@ document.addEventListener('DOMContentLoaded', () => {
             processing_title: "Development Timeline",
             processing_subtitle: "This chart visualizes my development timeline, mapping key milestones in education, training, professional roles, and language acquisition against a rising index of competence and responsibility. Click on any data point for a detailed analysis.",
             projects_title: "Project Database",
-            projects_subtitle: "This section provides concrete evidence of my problem-solving capabilities. Each project is presented as a case study.",
+            projects_subtitle: "This section provides concrete evidence of my problem-solving capabilities. Each project is presented as a case study, adaptable for both commercial and academic review.",
             filter_placeholder: "Filter projects by title, role...",
             project_table_header: ["Titel", "Rolle", "Problem", "Aktion", "Ergebnis"],
+            project_table_header_academia: ["Titel", "Rolle", "Abstract"],
             project_problem: "Problem",
             project_action: "Action",
             project_result: "Result"
@@ -361,16 +384,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const projectsData = { 
         de: [ 
-            { title: "Pareto-effiziente Herstellung von C/SiC-Verbundwerkstoffen mittels Polymerinfiltration und Pyrolyse", role: "Masterarbeit", industry: { problem: "Entwicklung eines effizienten Herstellungsprozesses. Das Ziel der Arbeit ist es, mögliche Korrelationen zwischen den Prozessparametern und den resultierenden Eigenschaften zu finden.", action: "Anwendung statistischer Versuchsplanung (DoE) zur Optimierung des PIP-Verfahrens.", result: "Identifizierung entscheidender Prozessfaktoren für verbesserten Durchsatz." } }, 
-            { title: "Herstellung und Charakterisierung von C/SiC-Keramikverbundwerkstoffen", role: "Labor-Projekt", industry: { problem: "Entwicklung von Fertigungskompetenzen für Keramikverbundwerkstoffe.", action: "Herstellung von 15 Prototypen mittels Vakuuminfusion und RTM.", result: "Etablierung eines robusten Herstellungsprozesses für qualitativ hochwertige Prototypen." } }, 
-            { title: "Konstruktion und Herstellung einer hydraulisch angetriebenen Formmaschine", role: "Miniprojekt", industry: { problem: "Entwicklung einer Maschine zur Einbettung metallischer Proben für die metallographische Analyse.", action: "Konstruktion und Fertigung einer hydraulisch betriebenen Formpresse. Entwurf eines integrierten Heizsystems zur Aushärtung.", result: "Erfolgreiche Herstellung einer funktionsfähigen Formmaschine, die eine effiziente Probeneinbettung ermöglicht." } }, 
-            { title: "Schallabsorption von akustischen Metamaterialien", role: "Bachelorarbeit", industry: { problem: "Entwicklung eines leichten, kompakten schallabsorbierenden Materials.", action: "Konstruktion und Herstellung eines Metamaterial-Prototyps mittels FDM.", result: "Herstellung eines Prototyps mit gezielten Schallabsorptionseigenschaften." } } 
+            { title: "Pareto-effiziente Herstellung von C/SiC-Verbundwerkstoffen mittels Polymerinfiltration und Pyrolyse", role: "Masterarbeit", industry: { problem: "Entwicklung eines effizienten Herstellungsprozesses. Das Ziel der Arbeit ist es, mögliche Korrelationen zwischen den Prozessparametern und den resultierenden Eigenschaften zu finden.", action: "Anwendung statistischer Versuchsplanung (DoE) zur Optimierung des PIP-Verfahrens.", result: "Identifizierung entscheidender Prozessfaktoren für verbesserten Durchsatz." }, academia: { abstract: "Diese Arbeit untersucht die Pareto-effiziente Herstellung von C/SiC-Verbundwerkstoffen mittels PIP-Verfahren und DoE zur Identifizierung kritischer Prozessparameter." } }, 
+            { title: "Herstellung und Charakterisierung von C/SiC-Keramikverbundwerkstoffen", role: "Labor-Projekt", industry: { problem: "Entwicklung von Fertigungskompetenzen für Keramikverbundwerkstoffe.", action: "Herstellung von 15 Prototypen mittels Vakuuminfusion und RTM.", result: "Etablierung eines robusten Herstellungsprozesses für qualitativ hochwertige Prototypen." }, academia: { abstract: "Dieses Projekt konzentrierte sich auf die praktische Herstellung von C/SiC-Verbundwerkstoffen mittels PIP, um ein tiefes praktisches Verständnis der Verbundwerkstoffherstellung zu gewinnen." } }, 
+            { title: "Konstruktion und Herstellung einer hydraulisch angetriebenen Formmaschine", role: "Miniprojekt", industry: { problem: "Entwicklung einer Maschine zur Einbettung metallischer Proben für die metallographische Analyse.", action: "Konstruktion und Fertigung einer hydraulisch betriebenen Formpresse. Entwurf eines integrierten Heizsystems zur Aushärtung.", result: "Erfolgreiche Herstellung einer funktionsfähigen Formmaschine, die eine effiziente Probeneinbettung ermöglicht." }, academia: { abstract: "Dieses Projekt umfasste die Konstruktion und den Bau einer hydraulisch angetriebenen Formmaschine zum Einbetten von metallurgischen Proben in wärmehärtendes Phenolformaldehydharz." } }, 
+            { title: "Schallabsorption von akustischen Metamaterialien", role: "Bachelorarbeit", industry: { problem: "Entwicklung eines leichten, kompakten schallabsorbierenden Materials.", action: "Konstruktion und Herstellung eines Metamaterial-Prototyps mittels FDM.", result: "Herstellung eines Prototyps mit gezielten Schallabsorptionseigenschaften." }, academia: { abstract: "Experimentelle Untersuchung der Schallabsorptionseigenschaften von akustischen Metamaterialien durch Charakterisierung eines FDM-gefertigten Prototyps." } } 
         ], 
         en: [ 
-            { title: "Pareto efficent production of C/SiC composite via Polymer Infiltration and Pyrolysis", role: "Master Thesis", industry: { problem: "Develop an efficient manufacturing process. The goal of the thesis is to find possible correlations between process parameters and the resulting properties.", action: "Applied Design of Experiments (DoE) to optimize the PIP process.", result: "Identified key process factors for improved throughput." } }, 
-            { title: "Fabrication and Characterization of C/SiC Ceramic Composites", role: "Lab Project", industry: { problem: "Develop manufacturing expertise for ceramic matrix composites.", action: "Fabricated 15 prototypes using vacuum infusion and RTM.", result: "Established a robust manufacturing process for high-quality prototypes." } }, 
-            { title: "Design and Fabrication of a Hydraulic Powered Molding Machine", role: "Mini Project", industry: { problem: "Develop a machine for embedding metallic specimens for metallographic analysis.", action: "Designed and fabricated a hydraulic molding press. Engineered an integrated heating system for curing.", result: "Successfully produced a functional molding machine enabling efficient specimen embedding." } }, 
-            { title: "Sound Absorption of Acoustic Metamaterials", role: "Bachelor Thesis", industry: { problem: "Develop a lightweight, compact sound-absorbing material.", action: "Designed and fabricated a metamaterial prototype using FDM.", result: "Created a prototype with targeted sound absorption properties." } } 
+            { title: "Pareto efficent production of C/SiC composite via Polymer Infiltration and Pyrolysis", role: "Master Thesis", industry: { problem: "Develop an efficient manufacturing process. The goal of the thesis is to find possible correlations between process parameters and the resulting properties.", action: "Applied Design of Experiments (DoE) to optimize the PIP process.", result: "Identified key process factors for improved throughput." }, academia: { abstract: "This thesis investigates the Pareto-efficient production of C/SiC composites via the PIP process, using DoE to identify critical process parameters." } }, 
+            { title: "Fabrication and Characterization of C/SiC Ceramic Composites", role: "Lab Project", industry: { problem: "Develop manufacturing expertise for ceramic matrix composites.", action: "Fabricated 15 prototypes using vacuum infusion and RTM.", result: "Established a robust manufacturing process for high-quality prototypes." }, academia: { abstract: "This project focused on the practical fabrication of C/SiC composites via PIP, gaining a deep practical understanding of composite manufacturing." } }, 
+            { title: "Design and Fabrication of a Hydraulic Powered Molding Machine", role: "Mini Project", industry: { problem: "Develop a machine for embedding metallic specimens for metallographic analysis.", action: "Designed and fabricated a hydraulic molding press. Engineered an integrated heating system for curing.", result: "Successfully produced a functional molding machine enabling efficient specimen embedding." }, academia: { abstract: "This project involved the design and construction of a hydraulic-powered molding machine for embedding metallurgical specimens in thermosetting phenol formaldehyde resin." } }, 
+            { title: "Sound Absorption of Acoustic Metamaterials", role: "Bachelor Thesis", industry: { problem: "Develop a lightweight, compact sound-absorbing material.", action: "Designed and fabricated a metamaterial prototype using FDM.", result: "Created a prototype with targeted sound absorption properties." }, academia: { abstract: "Experimental study of sound absorption in acoustic metamaterials by characterizing an FDM-fabricated prototype." } } 
         ] 
     };
     const experienceData = {
@@ -550,10 +573,10 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             languages: [
                 { title: "Niveau A1", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2020", date: "2020-01", complexity: 1 },
-                { title: "Niveau A2", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2020", date: "2020-06", complexity: 2 },
-                { title: "Niveau B1", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2021", date: "2021-01", complexity: 3 },
-                { title: "Niveau B2", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2021", date: "2021-06", complexity: 4 },
-                { title: "Konversationskurs Deutsch B1.1", company: "Universität Augsburg", companyLink: "https://www.uni-augsburg.de/en/", details: "Deutschland | 2022", date: "2022-04", complexity: 3 },
+                { title: "Niveau A2", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2020", date: "2020-06", complexity: 1 },
+                { title: "Niveau B1", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2021", date: "2021-01", complexity: 1 },
+                { title: "Niveau B2", company: "Deutsch", affiliation: "Goethe-Institut, Chennai", details: "Indien | 2021", date: "2021-06", complexity: 1 },
+                { title: "Konversationskurs Deutsch B1.1", company: "Universität Augsburg", companyLink: "https://www.uni-augsburg.de/en/", details: "Deutschland | 2022", date: "2022-04", complexity: 1 },
                 { title: "Japanisch - Niveau N5", company: "Japan Educational Exchanges and Services (JEES)", companyLink: "https://www.jees.or.jp/index.htm", details: "Indien | 2016-2017", date: "2016-01", complexity: 1 },
             ]
         },
@@ -700,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         "Structural Mechanics at PFH Stade",
                         "High-Performance Fibers for Composites at DITF",
                         "Composite Materials Testing at Applus, IMA Dresden",
-                        "Industrial visits to MT-Aerospace, Composite Village, and DLR in Stade"
+                        "Industrial visits to MT-Aerospace, Composite Village, and DLR Stade"
                     ],
                     stipend: "Awarded a one-time stipend of €1000"
                 },
@@ -733,10 +756,10 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             languages: [
                 { title: "German - Level A1", company: "Goethe-Institut, Chennai", details: "India | 2020", date: "2020-01", complexity: 1 },
-                { title: "German - Level A2", company: "Goethe-Institut, Chennai", details: "India | 2020", date: "2020-06", complexity: 2 },
-                { title: "German - Level B1", company: "Goethe-Institut, Chennai", details: "India | 2021", date: "2021-01", complexity: 3 },
-                { title: "German - Level B2", company: "Goethe-Institut, Chennai", details: "India | 2021", date: "2021-06", complexity: 4 },
-                { title: "Conversational German B1.1", company: "University of Augsburg", companyLink: "https://www.uni-augsburg.de/en/", details: "Germany | 2022", date: "2022-04", complexity: 3 },
+                { title: "German - Level A2", company: "Goethe-Institut, Chennai", details: "India | 2020", date: "2020-06", complexity: 1 },
+                { title: "German - Level B1", company: "Goethe-Institut, Chennai", details: "India | 2021", date: "2021-01", complexity: 1 },
+                { title: "German - Level B2", company: "Goethe-Institut, Chennai", details: "India | 2021", date: "2021-06", complexity: 1 },
+                { title: "Conversational German B1.1", company: "University of Augsburg", companyLink: "https://www.uni-augsburg.de/en/", details: "Germany | 2022", date: "2022-04", complexity: 1 },
                 { title: "Japanese - Level N5", company: "Japan Educational Exchanges and Services (JEES)", companyLink: "https://www.jees.or.jp/index.htm", details: "India | 2016-2017", date: "2016-01", complexity: 1 },
             ]
         }
@@ -744,6 +767,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const certificationsData = [ { name: "Circular Economy", url: "https://coursera.org/share/50dd7d908e47e6bfa5ec40b5e396adf9" }, { name: "CATIA V5", url: "https://www.udemy.com/certificate/UC-2d94d0d3-f652-43b3-886e-dba606eb2522/" }, { name: "Siemens NX", url: "https://www.udemy.com/certificate/UC-efb0a285-47d8-4692-8d54-c42d74c089a7/" }, { name: "Additive Technologies in Metallurgy & Mechanical Engineering", url: "https://coursera.org/share/47d51dfbc86f99e9a68a78787b13630c" } ];
 
     // --- STATE & CHARTS --- //
+    let currentGrade = 'industry';
     let currentLang = 'de';
     let skillsChart, careerChart;
     let activeTooltip = {
@@ -752,6 +776,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- UI & RENDER FUNCTIONS --- //
+    const setGrade = (grade) => {
+        currentGrade = grade;
+        document.querySelectorAll('#industry-btn, #academia-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`${grade}-btn`).classList.add('active');
+        renderContent();
+    };
+
     const setLanguage = (lang) => {
         currentLang = lang;
         document.documentElement.lang = lang;
@@ -770,6 +801,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderContent = (isLangChange = false) => {
+        document.querySelectorAll(".view-content").forEach(view => {
+            view.classList.toggle("hidden", view.dataset.view !== currentGrade);
+        });
         renderProjects();
         renderSkills();
         renderCertifications();
@@ -794,12 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         container.innerHTML = interestKeys.map(key => {
             const title = interestsData[key];
-            return `<button data-interest-id="${key}" class="interest-item group block w-full text-left p-2 rounded-md hover:bg-gray-100 flex justify-between items-center">
-                        <span><span class="font-semibold text-gray-700">&#8226;</span> ${title}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </button>`;
+            return `<button data-interest-id="${key}" class="interest-item block w-full text-left p-2 rounded-md hover:bg-gray-100"><span class="font-semibold text-gray-700">&#8226;</span> ${title}</button>`;
         }).join("");
     };
 
@@ -828,16 +857,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const projects = projectsData[currentLang];
         const i18n = i18nData[currentLang];
 
-        headContainer.innerHTML = `<tr>${i18n.project_table_header.map(h => `<th>${h}</th>`).join('')}</tr>`;
-        bodyContainer.innerHTML = projects.map(p => `
-            <tr>
-                <td>${p.title}</td>
-                <td>${p.role}</td>
-                <td>${p.industry.problem}</td>
-                <td>${p.industry.action}</td>
-                <td>${p.industry.result}</td>
-            </tr>
-        `).join('');
+        if (currentGrade === 'industry') {
+            headContainer.innerHTML = `<tr>${i18n.project_table_header.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            bodyContainer.innerHTML = projects.map(p => `
+                <tr>
+                    <td>${p.title}</td>
+                    <td>${p.role}</td>
+                    <td>${p.industry.problem}</td>
+                    <td>${p.industry.action}</td>
+                    <td>${p.industry.result}</td>
+                </tr>
+            `).join('');
+        } else {
+            headContainer.innerHTML = `<tr>${i18n.project_table_header_academia.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            bodyContainer.innerHTML = projects.map(p => `
+                <tr>
+                    <td>${p.title}</td>
+                    <td>${p.role}</td>
+                    <td>${p.academia.abstract}</td>
+                </tr>
+            `).join('');
+        }
     };
     
     window.filterProjects = () => {
@@ -1043,39 +1083,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.querySelector(link.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
-        });
-    });
-    
-    const sections = document.querySelectorAll('section');
-    const navLinks = document.querySelectorAll('#main-nav a');
-
-    window.addEventListener('scroll', () => {
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            if (pageYOffset >= sectionTop - 150) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href').includes(current)) {
-                link.classList.add('active');
-            }
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${button.dataset.tab}`).classList.add('active');
+            if(button.dataset.tab === 'mechanical') createOrUpdateSkillsChart();
+            if(button.dataset.tab === 'processing') setTimeout(() => createOrUpdateCareerChart(), 0);
         });
     });
 
+    document.getElementById('industry-btn').addEventListener('click', () => setGrade('industry'));
+    document.getElementById('academia-btn').addEventListener('click', () => setGrade('academia'));
     document.getElementById('de-btn').addEventListener('click', () => setLanguage('de'));
     document.getElementById('en-btn').addEventListener('click', () => setLanguage('en'));
 
     setLanguage('de');
+    setGrade('industry');
     
     // Collapsible section for skills
     const skillsInfoToggle = document.getElementById('skills-info-toggle');
@@ -1155,3 +1180,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
