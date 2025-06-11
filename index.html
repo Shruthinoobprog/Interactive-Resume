@@ -10,6 +10,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!--
+    Theme: Material Properties Databank
+    Concept: This interactive resume is styled as a technical data sheet for a high-performance material, named "Jayashruthi Rangarajan". The user navigates through different data categories (General, Mechanical, Processing, Microstructure) to explore the 'material's' properties and history.
+    Visuals: The design uses a clean, technical aesthetic with a color palette of whites, grays, and a sharp blue accent, reminiscent of scientific software or a technical database. Typography prioritizes clarity with Roboto for prose and Roboto Mono for data points.
+    Interactivity:
+    - Tabbed Navigation: Allows users to explore different facets of the profile in an organized manner.
+    - Interactive Career Chart: The timeline is a "Process History" scatter plot, mapping career milestones against a competence index over time. Tooltips are "sticky" on click for easier reading.
+    - Filterable Project Database: The "Microstructure Analysis" section presents projects in a searchable table, enabling users to quickly find relevant case studies.
+    - Radar Chart: The skills radar chart is retained under "Mechanical Properties" to provide a quick visual summary of capabilities.
+    -->
     <style>
         html {
             scroll-behavior: smooth;
@@ -130,6 +140,12 @@
         .rotate-180 {
             transform: rotate(180deg);
         }
+        .interest-item:hover {
+            color: #0d6efd;
+        }
+        .interest-item:hover svg {
+             color: #0d6efd;
+        }
     </style>
 </head>
 <body class="p-2 sm:p-4 md:p-6">
@@ -164,7 +180,7 @@
         <!-- Main Content -->
         <main class="p-4 sm:p-6">
             <!-- General Properties -->
-            <section id="general" class="pt-20 -mt-20">
+            <section id="general" class="pt-20 -mt-20 pb-16">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div class="md:col-span-2">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4" data-i18n-key="summary_title"></h2>
@@ -193,7 +209,7 @@
             </section>
 
             <!-- Mechanical Properties (Skills) -->
-            <section id="mechanical" class="pt-20 -mt-20">
+            <section id="mechanical" class="pt-20 -mt-20 pb-16">
                  <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n-key="skills_title"></h2>
                  <div>
                     <button id="skills-info-toggle" class="flex items-center text-sm text-gray-500 mb-4 hover:text-blue-600">
@@ -212,7 +228,7 @@
             </section>
 
             <!-- Development Timeline (was Processing History) -->
-            <section id="processing" class="pt-20 -mt-20">
+            <section id="processing" class="pt-20 -mt-20 pb-16">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n-key="processing_title"></h2>
                 <p class="text-gray-500 mb-4" data-i18n-key="processing_subtitle"></p>
                 <div class="relative">
@@ -222,7 +238,7 @@
             </section>
 
             <!-- Microstructure Analysis (Projects) -->
-            <section id="microstructure" class="pt-20 -mt-20">
+            <section id="microstructure" class="pt-20 -mt-20 pb-16">
                  <h2 class="text-2xl font-bold text-gray-800 mb-2" data-i18n-key="projects_title"></h2>
                  <p class="text-sm text-gray-500 mb-4" data-i18n-key="projects_subtitle"></p>
                  <input type="text" id="project-filter" class="filter-input mb-4" onkeyup="filterProjects()">
@@ -322,9 +338,9 @@ document.addEventListener('DOMContentLoaded', () => {
             skill_cad_title: "CAD/CAE Design & Simulation",
             skill_cad_list: ["CAD: AutoCAD, Creo Parametric, SolidWorks, Siemens NX, CATIA V5", "FEM: COMSOL Multiphysics, Nastran, Patran"],
             skill_data_title: "Data Analysis & Programming",
-            skill_data_list: ["Data Analysis: Origin, MATLAB", "Programmierung: Python, Java"],
-            skill_mfg_title: "Materialverarbeitung",
-            skill_mfg_list: ["Aluminium-Wärmebehandlung", "Additive Fertigung (FDM) von thermoplastischen Polymeren", "Vakuuminfusion, RTM & PIP für Verbundwerkstoffe"],
+            skill_data_list: ["Data Analysis: Origin, MATLAB", "Programming: Python, Java"],
+            skill_mfg_title: "Material Processing",
+            skill_mfg_list: ["Aluminum Heat Treatment", "Additive Manufacturing (FDM) of Thermoplastic Polymers", "Composite Processing (Vacuum Infusion, RTM, PIP)"],
             chart_label: "Proficiency Level",
             chart_topics: ["Lab & Characterization", "FEM Simulation", "CAD Design", "Data Analysis", "Material Processing"],
             legend_professional: "Professional",
@@ -778,7 +794,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         container.innerHTML = interestKeys.map(key => {
             const title = interestsData[key];
-            return `<button data-interest-id="${key}" class="interest-item block w-full text-left p-2 rounded-md hover:bg-gray-100"><span class="font-semibold text-gray-700">&#8226;</span> ${title}</button>`;
+            return `<button data-interest-id="${key}" class="interest-item group block w-full text-left p-2 rounded-md hover:bg-gray-100 flex justify-between items-center">
+                        <span><span class="font-semibold text-gray-700">&#8226;</span> ${title}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>`;
         }).join("");
     };
 
@@ -1050,7 +1071,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
 
     document.getElementById('de-btn').addEventListener('click', () => setLanguage('de'));
     document.getElementById('en-btn').addEventListener('click', () => setLanguage('en'));
